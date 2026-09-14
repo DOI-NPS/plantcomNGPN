@@ -14,20 +14,26 @@ export(getTaxa)
 export(getTrees)
 export(importData)
 export(importViews)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,collect)
-importFrom(dplyr,distinct)
-importFrom(dplyr,filter)
-importFrom(dplyr,inner_join)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,rename)
-importFrom(dplyr,right_join)
-importFrom(dplyr,select)
-importFrom(dplyr,semi_join)
-importFrom(dplyr,tbl)
-importFrom(purrr,flatten)
-importFrom(purrr,map)
-importFrom(purrr,set_names)
-importFrom(tidyr,pivot_longer)
-importFrom(tidyr,pivot_wider)
+importFrom(dplyr,
+  bind_rows,
+  collect,
+  distinct,
+  filter,
+  inner_join,
+  left_join,
+  mutate,
+  rename,
+  right_join,
+  select,
+  semi_join,
+  tbl
+)
+importFrom(purrr,
+  flatten,
+  map,
+  set_names
+)
+importFrom(tidyr,
+  pivot_longer,
+  pivot_wider
+)
