@@ -1,0 +1,40 @@
+Package: plantcomNGPN
+Type: Package
+Title: Package for importing, exporting, querying, and summarizing NGPN FFI data. 
+Version: 0.1.2
+Authors@R: c(
+  person("Kinzie", "Bailey", role = c("aut"), email = "kinzie_bailey@partner.nps.gov"),
+  person("Kate", "Miller", role = c("aut", "cre"), email = "kathryn_miller@nps.gov", 
+    comment = c(ORCID = "0000-0001-8823-6373")))
+Description: Package imports FFI database tables from SQL Server backend and/or csvs. 
+  Additional features will allow for querying, summarizing and visualizing FFI data, 
+  specifically designed for parks in Northern Great Plains Network. 
+License: MIT 
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dplyr,
+    purrr,
+    tidyr
+Suggests: 
+    DBI,
+    dbplyr,
+    odbc,
+    zip
+Collate: 
+    'getMacroPlot.R'
+    'getSampleEvent.R'
+    'getCoverPoints.R'
+    'getCoverSpeciesComp.R'
+    'getDensityBelts.R'
+    'getDensityQuadrats.R'
+    'getDisturbanceHistory.R'
+    'getFuels1000.R'
+    'getFuelsDuff.R'
+    'getFuelsFine.R'
+    'getTaxa.R'
+    'getTrees.R'
+    'importData.R'
+    'importViews.R'
+Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3

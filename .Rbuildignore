@@ -1,0 +1,12 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^testing_scripts$
+^.*\.zip$
+^.*\.svg$
+^.*\.jpg$
+^.*\.txt$
+^\docs$
+^\SQL$
+^\data$
+^\.positai$
+^\.claude$

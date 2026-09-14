@@ -1,0 +1,159 @@
+---
+output:
+  html_document:
+    css: www/styles.css
+    anchor_sections: FALSE
+    includes:
+      in_header: "header_manual.html"
+
+params:
+  year_curr: 2025 # Current year of sampling
+  all_years: FALSE # If FALSE, only reports on year_curr; TRUE reports on all years; not enabled yet- currently all years
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = FALSE, vline = "|")
+options(knitr.kable.NA = '', scipen = 100)
+```
+
+## Data Entry QC {.tabset .tabset-pills}
+
+```{r libs, include = F}
+library(plantcomNGPN)
+library(tidyverse) # dplyr, purrr, tidyr
+library(knitr) # for kable and include_graphic()
+library(kableExtra) # for custom kable features
+library(sf) # for checking plot coords against park bounding boxes
+library(data.table) # faster summarizing than dplyr for big datasets
+library(DT) # much faster at making tables for large dfs than kable
+
+all_years <- params$all_years
+year_curr <- params$year_curr
+year_range <- if(all_years == TRUE){2011:year_curr} else {year_curr}
+year_hist <- 2011:(year_curr - 1)
+```
+
+```{r imports, include = F}
+# Original import requires having SQL setup
+# importData(type = 'local',
+#            dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+#                       "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", #"FFI_RA_MNRR",
+#                       "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"),
+#            keep_tables = T)
+
+# If SQL not set up, use import below instead, and update the import_path:
+# importViews(import_path = "./data/NGPN_FFI_views_20260616.zip")
+#importViews(import_path = "./docs/data/NGPN_FFI_views_20260616.zip")
+
+try(importData(type = 'csv',
+           import_path = "../data/NGPN_FFI_table_export_20260616.zip",
+           keep_tables = T), silent = T)
+
+try(importData(type = 'csv',
+           import_path = "./data/NGPN_FFI_table_export_20260616.zip",
+           keep_tables = T), silent = T)
+```
+
+```{r source, include = F}
+# source code to generate most of the datasets/checks that are then printed in the rmd.
+source("NGPN_network_QC_checks_compile.R")
+#source("./docs/NGPN_network_QC_checks_compile.R")
+```
+
+### QC Check Table {.tabset}
+```{r qccheck}
+QC_check_table
+```
+
+```{r taxa, eval = taxa_include, results = 'asis'}
+cat("### Taxa Table {.tabset}", "\n\n")
+
+check_null_print(dt_taxa_miss_sci, 4, "Blank SciName")
+
+check_null_print(kbl_taxa_miss_sym, 4, "Blank Symbol")
+
+check_null_print(dt_taxa_miss_tsn, 4, "Blank ITIS_TSN")
+
+check_null_print(kbl_taxa_miss_nb, 4, "Blank NotBio")
+
+cat("\n\n")
+```
+
+```{r pointint, eval = pint_include, results = 'asis'}
+cat("### Point Intercept {.tabset}", "\n\n")
+
+check_null_print(dt_num_ground, 4, "Missing Ground")
+
+check_null_print(dt_ht_check, 4, "Missing Height")
+
+check_null_print(kbl_dup_order, 4, "Duplicate Order")
+
+check_null_print(kbl_ht_oor, 4, "Height over 2m")
+
+check_null_print(kbl_point99, 4, "Heights over 99.8pct")
+
+check_null_print(kbl_trans12, 4, "Odd Transects")
+
+cat("\n\n")
+```
+
+```{r densb, eval = densb_include, results = 'asis'}
+cat("### Quadrats {.tabset}", "\n\n")
+
+check_null_print(kbl_dtrans12, 4, "Odd Transects")
+
+check_null_print(kbl_dtrans1, 4, "Transects not = 1")
+
+check_null_print(kbl_subfrac_imp, 4, "Subfrac Typo")
+
+check_null_print(kbl_spp_count, 4, "Count != 1")
+
+check_null_print(kbl_spp_dup2, 4, "Duplicate Spp.")
+
+cat("\n\n")
+```
+
+```{r trees, eval = tree_include, results = 'asis'}
+cat("### Trees and Poles {.tabset}", "\n\n")
+
+check_null_print(dt_trees_wrong_drc, 4, "Wrong Diam - DRC")
+
+check_null_print(dt_trees_wrong_dbh, 4, "Wrong Diam - DBH")
+
+check_null_print(dt_bigt, 4, "Big Trees")
+
+check_null_print(dt_trees99, 4, "DBH over 99pct")
+
+check_null_print(dt_bigdrc, 4, "Big DRC")
+
+check_null_print(kbl_trees_drc99, 4, "DRC over 99pct")
+
+check_null_print(kbl_small_dbh, 4, "DBH under 2.54")
+
+cat("\n\n")
+
+if(nrow(bigt) > 0){
+cat("#### Big Trees Diam. Distr", "\n\n")
+
+hist(bigt$diam, main = "Distribution of DBH/DRC > 60cm", xlab = "DBH/DRC class")
+
+cat("\n\n")
+} 
+
+check_null_print(dt_tree_miss_uv, 4, "Trees missing UV")
+
+check_null_print(dt_tree_incon_UV1, 4, "Trees incon. UV1")
+
+check_null_print(dt_tree_conds_UV2, 4, "Trees incon. UV2")
+
+check_null_print(dt_pole_uv, 4, "Poles with UV")
+
+check_null_print(kbl_tree_statcodes, 4, "Incons. Live Status Codes")
+
+check_null_print(dt_dead_con, 4, "Incons. Dead UV2")
+
+check_null_print(kbl_dead_miss_uv2, 4, "Dead missing UV2")
+
+cat("\n\n")
+
+```

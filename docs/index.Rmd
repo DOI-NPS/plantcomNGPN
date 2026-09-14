@@ -1,0 +1,587 @@
+---
+output: 
+  html_document:
+    css: www/styles.css
+title: "Using plantcomNGPN R pkg." 
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 10)
+```
+
+```{css echo = FALSE}
+.drop{
+  font-family: "Arial",Arial,sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding:0px 0px 0px 0px;
+  margin:0px 0px 0px 0px;
+}
+
+.title{
+ display:none;
+}
+
+```
+
+### Using the plantcomNGPN R package {.tabset .tabset-pills}
+
+#### 1. Setup {.tabset}
+##### Overview {.tabset}
+The `plantcomNGPN` package was designed to help compile, query and summarize plant community monitoring data collected by the Northern Great Plains Inventory and Monitoring Network (NGPN) data and stored in the FFI (FEAT/FIREMON Integrated) database.
+
+There are a couple of ways to import NGPN FFI data into R, and which will be demonstrated in code in tab 2. R package Intro > Import functions.  
+
+<ol>
+<li><h5>Import FFI tables from a local database installation in SQL Server Management Studio (SSMS).</h5> This approach requires having SQL Server Express installed. While SQL Server Express is approved software, it is not available in Company Portal, and requires elevated privileges from IT to install. This approach involves restoring the .bak files, which are exports of the FFI database for each park from the SQL Server database, as a local database copy on a given computer. See <b>SSMS > Local SSMS</b> tab for setup instructions. Once that's completed, continue to R package setup.</li>
+
+<li><h5>Import FFI tables from SQL Server.</h5> Ideally this will be the main way that NGPN staff import FFI data into R, as it will be importing live data, allowing for real-time QAQC, fixing any errors found, then rerunning the import. Likely each user will need permissions set on the server with their Active Directory account (so NPS or NPS-partners only). SSMS will need to be installed, which is available in Software Center, but SQL Server Express isn't needed. We will continue to request this access through FFI developers until we have it. See <b>SSMS > Server SSMS</b> tab for setup instructions. Once that's completed, continue to R package setup.</b></li>
+
+<li><h5>Import csvs of FFI database tables.</h5> The `importData()` function in this package can export a zip file containing csvs of all of the raw FFI database tables. Once that zip file is created, it can be used to import FFI data without the need of SSMS or SQL Server Express. This option allows non-NPS users to work with NPGN data. If this is the option you're using, go to <b>2. R package setup</b> tab for details on R package installation and setup.</li>
+
+<li><h5>Import csvs of the FFI views.</h5> In addition to importing and exporting FFI tables, the `importData()` function compiles the FFI raw tables into flattened stand-alone views of each FFI protocol (e.g. Cover Points, Density Belts, Trees, etc.), which are used by package functions to further query, summarize, and visualize the data. The views can be exported as a zip file in the `importData()` function. The zip file of views can be imported via `importViews()` function. This option is the fastest way to import NPGN data into R, and allows non-NPS users to more easily work with NPGN data. These views are intended to be analysis-ready. Any feedback on how to improve their usability is welcome. If this is the option you're using, go to <b>2. R package setup</b> tab for details on R package installation and setup.</li>
+</ol>
+
+Currently, only import and get functions exist in the R package. In time, more features will be added, such as functions that perform common summaries and visualize data, and this tutorial will be updated accordingly. Feedback is always welcome on how to improve this tutorial and the R package in general. 
+
+Additionally, an automated QC report that checks NPGN FFI data for potential missing data and errors is being developed separately. 
+<br>
+
+##### SSMS {.tabset}
+###### Local SSMS {.tabset}
+Once this step is complete, users can import FFI database tables into R using the `importData()` function and the name of the database in SSMS (see ImportData tab).
+
+<h5>Step 1. Install SQL Server Management Studio (SSMS) and SQL Server Express </h5>
+SSMS is available through Company Portal. SQL Server Express is approved software, but must be installed by IT personnel with elevated privileges. Contact package developers for more information on setting up SSMS and SQL Server Express. 
+<br>
+<h5>Step 2. Restore database from .bak file in SSMS</h5>
+To restore a database from a .bak file in SSMS:
+<ol>
+<li>Right click on Databases in the Object Explorer and select Restore Database.</li>
+<li>In the Restore Database window, select Device, then the ... button </li>
+<li>In the Select backup devices window, click the Add button.</li> 
+<li>Navigate to where the bak file you want to restore is stored. Note that SSMS doesn't talk well with OneDrive.
+bak files typically need to be directly on your C:/ drive (I tend to put them in a temp folder). </li>
+<li>Select OK. When you're back in the Restore Database window, make sure the Destination Database name matches
+what you want it to be named. This is the name the `importData()` function will use to import tables from that database. </li>
+</ol>
+
+Note that you can iterate through SQL code to restore multiple databases at once. The code includes full file paths and can't 
+be included here. Ask package developers for example code if interested.
+
+###### Server SSMS
+```{r echo = F}
+knitr::include_graphics("./www/under-construction.png")
+```
+...hopefully
+
+##### R package setup
+If you've never installed an R package from GitHub, you'll need to complete the following steps to install the plantcomNGPN R package. Once completed, move on to the ImportData and other function tabs for instructions on using the R package.
+
+<h5>Step 1. Install R, RStudio, and Rtools45</h5>
+Install R 4.5 or higher, RStudio, and Rtools45 (DOI-DO-RTools 4.5.6608 on Company Portal) from Company Portal. Note that R and RTools versions generally need to match. However, according to <a href = "https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html">CRAN </a> Rtools45 works for R 4.6 and the yet to be released R 4.7.   
+
+<h5><b>Step 2.</b> Install pak package in R:</h5>
+```{r, eval = F}
+install.packages('pak')
+```
+
+Once you've successfully completed Steps 1-2, you should only have to repeat them if you have a new computer or if you move to a new version of R not compatible with Rtools45.
+
+<h5>Step 3. Install `plantcomNGPN` from GitHub</h5>
+Whenever the `plantcomNGPN` package is updated, you can rerun this code to install the latest version.
+```{r, eval = F}
+library(pak)
+pkg_install("doi-nps/plantcomNGPN")
+```
+
+<h5 style="color:#1942B5">Troubleshooting GitHub package installation</h5>
+If you’re unable to install the R package via GitHub, you may need to fix the TLS inspection (often an error about permission being denied, or cannot open URL). If this is the case, ask package developers for the TLS script that will fix this issue (can't include link here).
+
+Once the TLS script is open in R Studio, press Control + A to select all of the code. Then Control + Enter to run all of the code. Assuming you don’t return any errors, you should be able to install from GitHub. Now try to reinstall `plantcomNGPN`. If you're still running into issues, it could be that `pak` is missing some package dependencies, which the error message will often mention. Install any missing packages and then try installing plantcomNGPN again. If you're still not successful, send package developers a screenshot of the error and they'll help you troubleshoot. 
+</li></ul>
+<br>
+<h5>Step 6. Load plantcomNGPN R package</h5>
+```{r}
+library(plantcomNGPN)
+```
+<br>
+
+#### 2. R package Intro {.tabset}
+##### Overview {.tabset}
+<h5>Overview</h5>
+Once you have the R package installed, you can import and start working with the data. There are 2 import functions in the plantcomNGPN package: 
+<ul>
+<li><b>importData()</b>: imports raw FFI tables as individual data frames, either from SSMS or as a zip file of csvs. If multiple databases are specified in the import, the tables will be binded by rows across parks. This function also includes features to export data as a zip file of csvs, which can then be used in the following function.</li>
+<li><b>importViews()</b>: a streamlined function that imports a zip file of flattened views for each FFI protocol.</li>
+</ul>
+
+Once FFI data are imported, the package has a get function specific to each FFI protocol view that you can use to query the data by parks, years, monitoring status, or purpose. Eventually, there will be summary and plotting functions to work with each protocol.
+
+##### Import functions {.tabset}
+<h5>importData()</h5>
+By default, the `importData()` function imports FFI tables and only returns the flattened views as data frames in an environment called <i>VIEWS_NGPN</i>. This minimizes memory usage and keeps a tidy R workspace. R package functions are then designed to work seamlessly with the views, regardless of whether they're in the VIEWS_NGPN environment or global environment. See <b>Working with the data</b> tab for how to work with data.frames housed within the VIEWS_NGPN environment.
+<ul>
+<li>
+<p class = 'fxn'>Import data for 1 database using local install in SSMS</p>
+Note that R is not able to connect to files on Sharepoint or MS Teams (Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server. The default option for importing data will add the data package views (i.e., flatfiles) to an environment called VIEWS_NGPN to your Environment work space (i.e. Environment tab in top right panel).
+
+```{r echo = F, results = 'hide', include = F}
+library(plantcomNGPN)
+try(importData(type = 'csv', import_path = "./data/NGPN_FFI_table_export_20260616.zip"))
+try(importData(type = 'csv', import_path = "../data/NGPN_FFI_table_export_20260616.zip"))
+#importViews(import_path = "./data/NGPN_FFI_views_20260526.zip")
+library(tidyverse)
+```
+
+```{r eval = F}
+library(plantcomNGPN)
+importData(dbname = "FFI_RA_AGFO")
+```
+</li>
+<li>
+<p class = 'fxn'>Import data for multiple databases using local installations in SSMS</p>
+The code below will row bind like data/tables across parks together to have 1 large view.
+```{r eval = F}
+importData(type = 'local',
+           dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+                      "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", "FFI_RA_MNRR",
+                      "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"))
+```
+</li>
+<li>
+<p class = 'fxn'>Import FFI tables as zip</p>
+The code below will import a zip file of THRO data exported by the `importData()` function (see options below). This approach does not require SSMS to be installed.
+```{r eval = F}
+importData(type = 'csv', import_path = "./data/FFI_RA_THRO.zip")
+```
+</li>
+</ul>
+
+<h5>importViews()</h5>
+<ul><li>
+<p class = 'fxn'>Import FFI views as a zip</p> 
+The `importViews()` function is the fastest and least memory hungry way to import FFI data. Someone will have to have generated the views by first importing raw FFI tables, and then exporting the views. Once that's completed, this import function is recommended. 
+```{r eval = F}
+importViews(import_path = "./data/NGPN_FFI_views_20250710.zip")
+```
+</li></ul>
+
+<h5>importData() Options</h5>
+There are multiple options within `importData()` that may be useful for different purposes. Note that 'FFI tables' are the raw data tables in the FFI database. In contrast, 'views' are flattend versions of the data that are each stand along, containing all of the information necessary for analysis (e.g. park, plot, GPS coordinates, etc.)
+<ul>
+<li>
+<p class = 'fxn'>Export raw FFI tables to zip</p>
+If you want to export the raw tables into a zip file of csvs, simply add `export_tables = T`. If no export_path is specified, the zip file will be saved in your working directory. The file name and path of the zip file will be printed in your console. Note that exporting can be slow, especially if you loaded multiple databases. 
+
+```{r eval = F}
+importData(type = 'local', 
+           dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+                      "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", "FFI_RA_MNRR",
+                      "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"), 
+           export_tables = T, export_path = "./data/")
+```
+</li>
+<li>
+<p class = 'fxn'>Export views to zip</p>
+Even better, is exporting the views into a zip file of csvs. To do that, add `export_views = T`. If no export_path is specified, the zip file will be saved in your working directory. The file name and path of the zip file will be printed in your console. This zip file is then the fastest way to import FFI data into R using the `importViews()` function instead. 
+
+```{r eval = F}
+importData(type = 'local', 
+           dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+                      "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", "FFI_RA_MNRR",
+                      "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"), 
+           export_views = T, export_path = "./data")
+```
+</li>
+
+<li>
+<p class = 'fxn'>Return raw tables too</p>
+There are times when it helps to view the raw FFI data tables, such as for troubleshooting an issue in the R package, or in figuring out where an error in the data was introduced and need to be fixed. To return the raw FFI tables in addition to the views, specify `keep_tables = TRUE`. The raw FFI tables will then show up in an environment called NGPN_tables (unless you specify new_env = F). Note that keeping raw tables will consume more RAM than just importing/keeping the views.  
+
+```{r eval = F}
+importData(type = 'local', 
+           dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+                      "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", "FFI_RA_MNRR",
+                      "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"), 
+           keep_tables = T)
+```
+</li>
+<li>
+<p class = 'fxn'>Return views to global environment</p>
+```{r eval = F}
+importData(type = 'local', 
+           dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+                      "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", "FFI_RA_MNRR",
+                      "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"), 
+           new_env = F)
+```
+</li></ul>
+
+##### Working with the Data
+The functions in the `plantcomNGPN` package are designed to work with the views in <i>VIEWS_NGPN</i>, and are the best way to interact with the data to query by park, site, site type, year, parameter, etc. However, if you want to look at the views without using the package functions, you can use the following code. 
+
+If you want to use the `print_head()` function that shows output in the markdown, run the code below. This makes the results print cleaner in the markdown report. For your purposes, you can just run: `head(dataframe)`.
+```{r}
+print_head <- function(df){
+  nrows <- min(6, nrow(df))
+  knitr::kable(df[1:nrows,]) |>  
+    kableExtra::kable_classic(full_width = F, font_size = 12, 
+                              bootstrap_options = c("condensed")) |> 
+    kableExtra::scroll_box(width = '1200px')
+}
+```
+
+```{r}
+# See list of the views
+names(VIEWS_NGPN)
+
+# Inspect the cover point view
+View(VIEWS_NGPN$Cover_Points_metric)
+
+print_head(VIEWS_NGPN$Cover_Points_metric)
+
+# Assign the coverpoint view to the object covpt, which now behaves like a data.frame.
+covpt <- VIEWS_NGPN$Cover_Points_metric
+
+```
+
+Additionally, if you want to view the raw FFI data tables, and you imported the data into the NPGN_tables environment, you can access them with the code below:
+```{r eval = F}
+importData(type = 'local', 
+           dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+                      "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", "FFI_RA_MNRR",
+                      "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"), 
+           keep_tables = T)
+
+# See list of FFI tables
+sort(names(NGPN_tables))
+
+# Inspect the MacroPlot table
+View(NGPN_tables$MacroPlot)
+
+# Assign the MacroPlot table to the object macro
+macro <- NGPN_tables$MacroPlot
+
+```
+
+##### Getting help
+<h4><b>Getting (and improving) help</b></h4>
+The functions in `plantcomNGPN` have help documentation like any R package. To view the help, you can go to the Packages tab and click on plantcomNGPN (see below). That will show you all the functions in the package. Clicking on individual functions will take you to the help documentation for that function. 
+```{r echo = F, out.width = 500, fig.align = 'center'}
+knitr::include_graphics("./www/finding_R_package.jpg")
+```
+
+<p class = 'fxn'>You can also see the help of a function by running, for example: </p>
+```{r, eval = F}
+?importData
+```
+
+<p class = 'fxn'>If `plantcomNGPN` isn't loaded yet, you'd run: </p>
+```{r, eval = F}
+?plantcomNGPN::importData
+```
+
+Each function's help includes a Description, Usage (i.e. function arguments and their defaults), Argument options/definitions, and several examples showing how the function can be used. 
+
+<b><span style='color:red;'>This is where you come in! If you notice typos or can think of better descriptions, examples, error messages, etc., please send them to the package devolpers!</b></span> 
+
+Finally, if you ever want to peak under the hood at the function, you can view it several ways. 
+<ol>
+<li>Keep F2 key pressed and click on the function name in R. This trick works for many but not all functions in R.</li>
+<li>View code in the <a href="https://github.com/doi-nps/plantcomNGPN/tree/main">GitHub doi-nps/plantcomNGPN repo</a>. The functions are in the R folder. 
+
+#### 3. get Functions {.tabset}
+
+##### getMacroPlot()
+This function filters FFI macroplot data by park, plot name, project, and purpose. This function was primarily developed to pull out NGPN plant community monitoring plots. Using
+combinations of plot names, projects or purposes that are outside NGPN PCM plots hasn't been
+tested as thoroughly, and may not return intended results in every case. Note that this is more of an internal function that other data-related get functions source to efficiently
+filter on records.
+
+<p class='fxn'>Return all NGPN Plant Community Monitoring plots (ie vital signs plots),
+for the Park stratum and all purposes used by NGPN </p>
+```{r}
+macro_vs <- getMacroPlot()
+print_head(macro_vs[,1:18]) # dropping long text columns
+```
+
+<p class='fxn'>Query NGPN only plots from North Dakota</p>
+```{r}
+macro_nd <- getMacroPlot(park = c("FOUS", "KNRI", "THRO"))
+print_head(macro_nd[,1:18]) # dropping long text columns
+```
+
+<p class='fxn'>Query and combine North and South Upland for THRO</p>
+```{r}
+thro_upn <- getMacroPlot(park = "THRO", project = "North Upland") |>   
+  select(-ProjectUnit_North_Upland)
+thro_ups <- getMacroPlot(park = "THRO", project = "South Upland") |> select(-ProjectUnit_South_Upland)
+
+thro_upn$ProjectUnit <- "North_Upland"
+thro_ups$ProjectUnit <- "South_Upland"
+
+thro_upld <- rbind(thro_upn, thro_ups)
+print_head(thro_upld[,1:18]) # dropping long text columns
+
+```
+
+##### getSampleEvent()
+This function filters FFI sample event data by park, plot name, project, purpose, and year.
+This function was primarily developed to pull out NGPN plant community monitoring plots. Using combinations of plot names, projects or purposes that are outside NGPN PCM plots hasn't been tested as thoroughly, and may not return intended results in every case. Note that this is more of an internal function that other data-related get functions source to efficiently filter on records. Note that currently, the MonitoringStatus_Comment column is not included, as it results in duplicate returns, where one row is blank and another includes a comment f or the sample sample event.
+
+<p class='fxn'>Default return all samples of NGPN Plant Community Monitoring plots (ie vital signs plots), for the Park stratum and all purposes used by NGPN from 2011 and later.</p>
+```{r}
+samp_vs <- getSampleEvent()
+print_head(samp_vs[,1:18]) # dropping long text columns
+```
+
+<p class='fxn'>Return data for AGFO and SCBL for NGPN_PCM plots</p>
+```{r}
+samp_AS <- getSampleEvent(park = c("AGFO", "SCBL"), purpose = "NGPN_PCM")
+print_head(samp_AS[,1:18]) # dropping long text columns
+```
+<p class='fxn'>Query all NGPN_PCM sites JECA PlantCommunity only</p>
+```{r}
+samp_jeca <- getSampleEvent(park = "JECA", mon_status = "PlantCommunity")
+print_head(samp_jeca[,1:18]) # dropping long text columns
+```
+
+<p class='fxn'>Return Prairie stratum for SCBL for NGPN_PCM plots</p>
+```{r}
+macro_pr_vs <- getMacroPlot(park = "SCBL", project = "Prairie")
+print_head(macro_pr_vs[,1:18]) # dropping long text columns
+```
+
+<p class='fxn'>Query NGPN only plots from North Dakota</p>
+```{r}
+macro_nd <- getMacroPlot(park = c("FOUS", "KNRI", "THRO"))
+print_head(macro_nd[,1:18]) # dropping long text columns
+```
+
+<p class='fxn'>Query NGPN only plots from North Dakota from 2020:2024</p>
+```{r}
+samp_nd <- getSampleEvent(park = c("FOUS", "KNRI", "THRO"), years = 2020:2024)
+print_head(samp_nd[,1:18]) # dropping long text columns
+```
+
+<p class='fxn'>Query and combine North and South Upland for THRO</p>
+```{r}
+thro_upn <- getSampleEvent(park = "THRO", project = "North Upland")
+thro_upn$ProjectUnit <- "North_Upland"
+
+thro_ups <- getSampleEvent(park = "THRO", project = "South Upland")
+thro_ups$ProjectUnit <- "South_Upland"
+
+thro_upld <- rbind(thro_upn, thro_ups)
+
+print_head(thro_upld[,1:18]) # dropping long text columns 
+```
+
+<p class='fxn'>Return results for three plots in KNRI for PlantCommunity monitoring status only</p>
+```{r}
+KNRI_123 <- getSampleEvent(plot_name = c("KNRI_PCM_001", "KNRI_PCM_002", "KNRI_PCM_003"),
+  mon_stat = "PlantCommunity")
+print_head(KNRI_123[,1:18]) # dropping long text columns
+```
+
+##### getCoverPoints()
+This function filters and joins FFI cover point data by park, plot name, purpose, project,
+sample year, and other parameters.
+
+<p class='fxn'>Get all cover point data for all parks, all years, for NGPN_PCM plots</p>
+```{r}
+covpts <- getCoverPoints()
+print_head(covpts)
+```
+
+<p class='fxn'>Return Native Prairie stratum for AGFO</p>
+```{r}
+covpts_pr <- getCoverPoints(park = "AGFO", project = "Native Prairie")
+print_head(covpts_pr)
+```
+
+<p class='fxn'>Get cover point data for ForestStructure monitoring status</p>
+```{r}
+covpts_for <- getCoverPoints(mon_status = "ForestStructure")
+print_head(covpts_for)
+```
+<p class='fxn'>Get invasive graminoid covre point data for BADL in 2024</p>
+```{r}
+badl_inv_gram <- getCoverPoints(park = "BADL", years = 2024) |>
+  filter(LifeForm_Name %in% "Graminoid") |>
+  filter(Invasive == TRUE)
+
+print_head(badl_inv_gram)
+```
+
+##### getCoverSpeciesComp()
+This function filters and joins FFI species cover data by park, plot name, purpose, project,
+sample year, and other parameters. The data returned are part of the target species protocol to aid early detection efforts in parks. When no target species were detected during monitoring, "no species" is recorded in the CommonName column, "NOSP" is the Symbol, and ScientificName is blank.
+
+<p class='fxn'>Get all cover point data for all parks, all years, for NGPN_PCM plots</p>
+```{r}
+covspp <- getCoverSpeciesComp()
+print_head(covspp)
+```
+
+<p class='fxn'>Return Native Prairie stratum for AGFO</p>
+```{r}
+covspp_pr <- getCoverSpeciesComp(park = "AGFO", project = "Native Prairie")
+print_head(covspp_pr)
+```
+
+<p class='fxn'>Get cover point data for ForestStructure monitoring status</p>
+```{r}
+covspp_for <- getCoverSpeciesComp(mon_status = "ForestStructure")
+print_head(covspp_for)
+```
+
+<p class='fxn'>Get invasive graminoid covre point data for BADL in 2024</p>
+```{r}
+badl_inv_gram <- getCoverSpeciesComp(park = "BADL") |>
+  filter(LifeForm_Name %in% "Graminoid") |>
+  filter(Invasive == TRUE)
+
+print_head(badl_inv_gram)
+```
+
+##### getDensityBelts()
+This function filters and joins FFI nested nested quadrat data by park, plot name, purpose, project, sample year, and other parameters.
+
+<p class='fxn'>Get all density quadrat data for all parks, all years, for NGPN_PCM plots</p>
+```{r}
+densb <- getDensityBelts()
+print_head(densb)
+```
+
+<p class='fxn'>Return Native Prairie stratum for AGFO</p>
+```{r}
+densb_pr <- getDensityBelts(park = "AGFO", project = "Native Prairie")
+print_head(densb_pr)
+```
+
+<p class='fxn'>Get density quadrat data for ForestStructure monitoring status</p>
+```{r}
+densb_for <- getDensityBelts(mon_status = "ForestStructure")
+print_head(densb_for)
+```
+
+<p class='fxn'>Get invasive graminoid quadrat data for BADL in 2024</p>
+```{r}
+badl_inv_gram <- getDensityBelts(park = "BADL", years = 2024) |>
+   filter(LifeForm_Name %in% "Graminoid") |>
+   filter(Invasive == TRUE)
+print_head(badl_inv_gram)
+```
+
+##### getDensityQuadrats()
+This function filters and joins FFI density quadrat data used for seedlings and tall shrubs in NGPN by park, plot name, purpose, project, sample year, and other parameters.
+
+<p class='fxn'>Get all seedling data for all parks, all years, for NGPN_PCM plots</p>
+```{r}
+densq <- getDensityQuadrats()
+print_head(densq)
+```
+
+<p class='fxn'>Get seedling data for ForestStructure monitoring status</p>
+```{r}
+densq_for <- getDensityQuadrats(mon_status = "ForestStructure")
+print_head(densq_for)
+```
+
+<p class='fxn'>Get shrub data for KNRI</p>
+```{r}
+knri_shrub <- getDensityQuadrats(park = "KNRI") |>
+  filter(LifeForm_Name == "Shrub")
+print_head(knri_shrub)
+```
+
+##### getFuels1000()
+This function filters and joins FFI Surface Fuels 1000Hr data by park, plot name, purpose, project, sample year, and other parameters.
+
+<p class='fxn'>Get all surface fuels 1000hr for all parks, all years, for NGPN_PCM plots</p>
+```{r}
+sf1000 <- getFuels1000()
+print_head(sf1000)
+```
+
+<p class='fxn'>Return THRO North Upland data</p>
+```{r}
+sf1000_thro <- getFuels1000(park = "THRO", project = "North Upland")
+print_head(sf1000_thro)
+```
+
+<p class='fxn'>Get surface fuels ForestStructure monitoring status</p>
+```{r}
+sf1000_for <- getFuels1000(mon_status = "ForestStructure")
+print_head(sf1000_for)
+```
+
+##### getFuelsFine
+This function filters and joins FFI Surface Fuels Fine data by park, plot name, purpose, project, sample year, and other parameters.
+
+<p class='fxn'>Get all surface fuels fine for all parks, all years, for NGPN_PCM plots</p>
+```{r}
+sffine <- getFuelsFine()
+print_head(sffine)
+```
+
+<p class='fxn'>Return THRO North Upland data</p>
+```{r}
+sffine_thro <- getFuelsFine(park = "THRO", project = "North Upland")
+print_head(sffine_thro)
+```
+
+<p class='fxn'>Get surface fuels ForestStructure monitoring status</p>
+```{r}
+sffine_for <- getFuelsFine(mon_status = "ForestStructure")
+print_head(sffine_for)
+```
+
+##### getFuelsDuff()
+This function filters and joins FFI Surface Fuels Duff data by park, plot name, purpose, project, sample year, and other parameters.
+
+<p class='fxn'>Get all surface fuels duff for all parks, all years, for NGPN_PCM plots</p>
+```{r}
+sfduff <- getFuelsDuff()
+print_head(sfduff)
+```
+
+<p class='fxn'>Return THRO North Upland data</p>
+```{r}
+sfduff_thro <- getFuelsDuff(park = "THRO", project = "North Upland")
+print_head(sfduff_thro)
+```
+
+<p class='fxn'>Get surface fuels ForestStructure monitoring status</p>
+```{r}
+sfduff_for <- getFuelsDuff(mon_status = "ForestStructure")
+print_head(sfduff_for)
+```
+
+##### getTrees()
+This function filters and joins FFI tree data by park, plot name, purpose, project, sample year, and other parameters.
+
+<p class='fxn'>Get all tree data for all parks, all years, for NGPN_PCM plots</p>
+```{r}
+trees <- getTrees()
+print_head(trees)
+```
+<p class='fxn'>Return DETO plots</p>
+```{r}
+trees_deto <- getTrees(park = "DETO")
+print_head(trees_deto)
+```
+
+<p class='fxn'>Get tree data for ForestStructure monitoring status</p>
+```{r}
+trees_for <- getTrees(mon_status = "ForestStructure")
+print_head(trees_for)
+```
+
+
+
+

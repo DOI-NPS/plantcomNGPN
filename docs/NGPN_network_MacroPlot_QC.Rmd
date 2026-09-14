@@ -1,0 +1,206 @@
+---
+output:
+  html_document:
+    css: www/styles.css
+    anchor_sections: FALSE
+    includes:
+      in_header: "header_manual.html"
+
+params:
+  year_curr: 2025 # Current year of sampling
+  all_years: FALSE # If FALSE, only reports on year_curr; TRUE reports on all years; not enabled yet- currently all years
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = FALSE, vline = "|")
+options(knitr.kable.NA = '', scipen = 100)
+```
+
+## MacroPlot and Sample Event checks {.tabset .tabset-pills}
+
+This document, checks the MarcoPlot and SampleEvents tables for data entry errors. This will check to make sure active plots have all the necessary information to correctly query. You will also be able to determine if the correct number of plots are being selected for analysis. 
+
+```{r libs, include = F}
+library(plantcomNGPN)
+library(tidyverse) # dplyr, purrr, tidyr
+library(knitr) # for kable and include_graphic()
+library(kableExtra) # for custom kable features
+library(sf) # for checking plot coords against park bounding boxes
+library(data.table) # faster summarizing than dplyr for big datasets
+library(DT) # much faster at making tables for large dfs than kable
+
+all_years <- params$all_years
+year_curr <- params$year_curr
+year_range <- if(all_years == TRUE){2011:year_curr} else {year_curr}
+year_hist <- 2011:(year_curr - 1)
+
+```
+
+```{r imports, include = F}
+# If SQL setup:
+# importData(type = 'local',
+#            dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+#                       "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", #"FFI_RA_MNRR",
+#                       "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"),
+#            keep_tables = T)
+
+# If SQL not set up, use import below instead, and update the import_path:
+try(importData(type = 'csv', 
+           import_path = "./data/NGPN_FFI_table_export_20260616.zip",
+           keep_tables = T), 
+    silent = T)
+
+try(importData(type = 'csv', 
+           import_path = "../data/NGPN_FFI_table_export_20260616.zip",
+           keep_tables = T), 
+    silent = T)
+```
+
+```{r source, include = F}
+# source code to generate most of the datasets/checks that are then printed in the rmd.
+source("NGPN_network_MacroPlot_QC_compile.R")
+#source("./docs/NGPN_network_QC_checks_compile.R")
+```
+
+### Plant Community Monitoring {.tabset}
+#### Macroplot QA/QC Info {.tabset}
+<span style="font-size:15px;">
+
+This tab is for Plant Community Monitoring Plots. 
+
+<p><strong>Monitoring Status Name</strong></p>
+
+<ul style="padding-left: 40px;">
+  <li>This list shows the plots that need to have a monitoring status name added, for each park. Monitoring status name needs to be filled in with <strong>YYYY_PlantCommunity</strong>. To filter out the correct plots for analysis, this column needs to be populated (Monitoring Status Prefix, Base, and Suffix).</li>
+  
+  <li>When adding the monitoring status name, please check to make sure all sampling protocols were collected. If any plots have a sampling protocol that were not collected, <strong>do not</strong> add a monitoring status name.</li>
+  
+  <li>This list was created by taking all of the sample events from FFI, filtering plot names that contained PCM, then with the panel-year schedule (panel_schedule.csv and THRO_panel_schedule.csv) to remove any off schedule samples, and selecting plots that did not have a monitoring status name.</li>
+</ul>
+
+<p><strong>Sampling Schedule Counts</strong></p>
+
+<ul style="padding-left: 40px;">
+  <li>This table shows all of the scheduled sampling events and the total number of plots sampled for each park.</li>
+</ul>
+
+</span>
+
+#### Monitoring Status Name {.tabset}
+```{r samp_events_name, eval = F}
+df_name <- samp_events_name |> filter(park %in% parkcode) |> select(-park)
+
+table_missing_name <- df_name |>
+  kable(format = 'html',
+        align = 'c',
+        caption = paste0('A table of all the NGPN PCM plots from **',
+                         parkcode,
+                         '** missing a monitoring status name. ',
+                         'These need to be check and a monitoring status ',
+                         'name added in FFI.')) |>
+  kable_styling(fixed_thead = T,
+                bootstrap_options = c("condensed",
+                                      "striped"),
+                full_width = T,
+                position = 'left',
+                font_size = 10) |>
+  column_spec(1:ncol(df_name),
+              border_left = "1px solid grey",
+              border_right = "1px solid grey")
+
+print(table_missing_name)
+```
+
+```{r, parktab, results = 'asis'}
+for(i in seq_along(park_list_name)){
+  parkcode = park_list_name[[i]]
+  cat("##### ", parkcode, "{.tabset}", "\n\n")
+  <<samp_events_name>>
+  cat("\n\n")
+  cat("\n\n")
+}
+```
+
+#### Sampling Schedule Counts {.tabset}
+```{r samp_events_count, eval = F}
+df_count <- samp_events_count |> filter(park %in% parkcode) |> select(-park)
+
+plot_events_count <- df_count |> 
+  kable(format = 'html',
+        align = 'c',
+        caption = paste0('Table 2. A table of NGPN PCM plots for **',
+                         parkcode,
+                         '**. Each value represents the number of plots sampled for each panel during the specified year.',
+                         "<br>","<br>",
+                         "Please check to make sure the number of plots sampled maches with the number on the table.")) |> 
+  kable_styling(fixed_thead = T, 
+                bootstrap_options = c("condensed", 
+                                      "striped"), 
+                full_width = T, 
+                position = 'left', 
+                font_size = 10) |> 
+  column_spec(1:ncol(df_count),
+              border_left = "1px solid grey",
+              border_right = "1px solid grey")
+
+print(plot_events_count)
+```
+
+```{r, parktab1, results = 'asis'}
+for(i in seq_along(park_list_samp)){
+  parkcode = park_list_samp[[i]]
+  cat("##### ", parkcode, "{.tabset}", "\n\n")
+  <<samp_events_count>>
+  cat("\n\n")
+  cat("\n\n")
+}
+```
+
+### Fire Effects {.tabset}
+#### Macroplot QA/QC Info {.tabset}
+<span style="font-size:15px;">
+
+<p><strong>Sampling Counts</strong></p>
+
+<ul style="padding-left: 40px;">
+  <li>This table shows the number of plots sampled for the different monitoring status names during each year, for each park.</li>
+  
+  <li>This data was selected by filtering plot names that contained PCM (including FPCM, LPCM. etc.), then selecting monitoring status names that matched strings of Pre, Post, Burn, and yr. Note: ####_FirePlantComminity was left out because it seemed to have a matching sample with a correct monitoring status name.</li>
+</ul>
+
+</span>
+
+#### Sampling Counts {.tabset}
+```{r samp_events_count_fire, eval = F}
+df_count_fire <- samp_events_count_fire |> filter(park %in% parkcode) |> select(-park)
+
+plot_events_count_fire <- df_count_fire |> 
+  kable(format = 'html',
+        align = 'c',
+        caption = paste0('Table 2. A table of Fire Effects plots for **',
+                         parkcode,
+                         '**. Each value represents the number of plots sampled for each status during the specified year.',
+                         "<br>","<br>",
+                         "Please check to make sure the nubmer of plots sampled maches with the number on the table.")) |> 
+  kable_styling(fixed_thead = T, 
+                bootstrap_options = c("condensed", 
+                                      "striped"), 
+                full_width = T, 
+                position = 'left', 
+                font_size = 10) |> 
+  column_spec(1:ncol(df_count_fire),
+              border_left = "1px solid grey",
+              border_right = "1px solid grey")
+
+print(plot_events_count_fire)
+```
+
+```{r, parktab2, results = 'asis'}
+for(i in seq_along(park_list_samp_fire)){
+  parkcode = park_list_samp_fire[[i]]
+  cat("##### ", parkcode, "{.tabset}", "\n\n")
+  <<samp_events_count_fire>>
+  cat("\n\n")
+  cat("\n\n")
+}
+```

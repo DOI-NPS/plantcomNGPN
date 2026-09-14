@@ -1,0 +1,130 @@
+---
+output:
+  html_document:
+    css: www/styles.css
+    anchor_sections: FALSE
+    includes:
+      in_header: "header_manual.html"
+
+params:
+  year_curr: 2025 # Current year of sampling
+  all_years: TRUE # If FALSE, only reports on year_curr; TRUE reports on all years; not enabled yet- currently all years
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = FALSE, vline = "|")
+options(knitr.kable.NA = '', scipen = 100)
+```
+
+## MacroPlot and Sample Event checks {.tabset .tabset-pills}
+
+This document checks the plots that do not follow the 2 years on, 3 years off schedule, as well as the MacroPlot information that is created when a plot is added to the sampling rotation. Thus, this document doesn't need to be run annual.
+
+```{r libs, include = F}
+library(plantcomNGPN)
+library(tidyverse) # dplyr, purrr, tidyr
+library(knitr) # for kable and include_graphic()
+library(kableExtra) # for custom kable features
+library(sf) # for checking plot coords against park bounding boxes
+library(data.table) # faster summarizing than dplyr for big datasets
+library(DT) # much faster at making tables for large dfs than kable
+
+all_years <- params$all_years
+year_curr <- params$year_curr
+year_range <- if(all_years == TRUE){2011:year_curr} else {year_curr}
+year_hist <- 2011:(year_curr - 1)
+
+```
+
+```{r imports, include = F}
+# If SQL setup:
+# importData(type = 'local',
+#            dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+#                       "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", #"FFI_RA_MNRR",
+#                       "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"),
+#            keep_tables = T)
+#keep_tables = T, export_views = T, export_path = "./data/")
+
+# If SQL not set up, use import below instead, and update the import_path:
+try(importData(type = 'csv', 
+           import_path = "./data/NGPN_FFI_table_export_20260616.zip",
+           keep_tables = T), 
+    silent = T)
+
+try(importData(type = 'csv', 
+           import_path = "../data/NGPN_FFI_table_export_20260616.zip",
+           keep_tables = T), 
+    silent = T)
+
+```
+
+```{r source, include = F}
+# source code to generate most of the datasets/checks that are then printed in the rmd.
+source("NGPN_network_NonAnnual_QC_compile.R")
+#source("./docs/NGPN_network_NonAnnual_QC_compile.R")
+```
+
+### Plots off Schedule {.tabset}
+```{r off_sched_plots, eval = F}
+df_samp_off <- samp_events_off |> filter(park %in% parkcode) |> select(-park)
+
+table_off_sched <- df_samp_off |>
+  kable(format = 'html',
+        align = 'c',
+        caption = paste0('A table of all the NGPN PCM plots from **',
+                         parkcode,
+                         '** that are off the sample schedule. ',
+                         'These need to be checked to make sure they should ',
+                         'not be included in any analyses.')) |>
+  kable_styling(fixed_thead = T,
+                bootstrap_options = c("condensed",
+                                      "striped"),
+                full_width = T,
+                position = 'left',
+                font_size = 10) |>
+  column_spec(1:ncol(df_samp_off),
+              border_left = "1px solid grey",
+              border_right = "1px solid grey")
+
+print(table_off_sched)
+```
+
+```{r, parktab_off, results = 'asis'}
+for(i in seq_along(park_list_samp_off)){
+  parkcode = park_list_samp_off[[i]]
+  cat("#### ", parkcode, "{.tabset}", "\n\n")
+  <<off_sched_plots>>
+  cat("\n\n")
+  cat("\n\n")
+}
+```
+
+```{r qc check}
+QC_check_table
+```
+
+```{r macro, eval = macro_include, results = 'asis'}
+cat("### MacroPlot Checks {.tabset}", "\n\n")
+
+cat("#### QC Summary Table\n\n")
+QC_check_table
+cat("\n\n")
+
+check_null_print(kbl_macro_miss_utm, 4, "Missing UTM")
+
+check_null_print(kbl_out_pts_utm, 4, "Incorrect UTM")
+
+check_null_print(kbl_datum, 4, "Datum check")
+
+check_null_print(kbl_out_pts_dd, 4, "Incorrect DD")
+
+check_null_print(kbl_macro_blanks, 4, "Blank Loc. Values")
+
+check_null_print(kbl_macro_imp, 4, "Impossible Values")
+
+check_null_print(kbl_macro_topo, 4, "UV1 Topo Positions")
+
+check_null_print(kbl_macro_veg, 4, "UV4 Veg. Type")
+
+cat("\n\n")
+```
