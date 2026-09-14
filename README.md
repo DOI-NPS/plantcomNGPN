@@ -14,7 +14,6 @@ Network plant community monitoring protocol.</li>
 community monitoring, which should make up the data package views. This is a 
 much faster way to import data into R than the importData function, and
 does not require special software (eg SQL).</li>
-<br>
 <li>getMacroPlot: query macroplot data</li>
 <li>getSampleEvent: query sample event data</li>
 <li>getCoverPointData: <DELETED - PRETTY SURE NOT USED ANYMORE.></li>     
