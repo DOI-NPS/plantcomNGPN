@@ -24,23 +24,6 @@
 #' \item{"WICA":} {Wind Cave National Park}
 #'}
 #'
-#' @param park Filter on park code (aka Unit_Name). Can select more than one.
-#' Valid inputs:
-#' \itemize{
-#' \item{"all":} {Include all NGPN parks with FFI data}
-#' \item{"AGFO":} {Agate Fossil Beds National Monument}
-#' \item{"BADL":} {Badlands National Park}
-#' \item{"DETO":} {Devils Tower National Monument}
-#' \item{"FOLA":} {Fort Laramie National Historic Site}
-#' \item{"FOUS":} {Fort Union Trading Post National Historic Site}
-#' \item{"JECA":} {Jewel Cave National Monument}
-#' \item{"KNRI":} {Knife River Indian Villages National Historic Sites}
-#' \item{"MORU":} {Mount Rushmore National Monument}
-#' \item{"SCBL":} {Scotts Bluff National Monument}
-#' \item{"THRO":} {Theodore Roosevelt National Park}
-#' \item{"WICA":} {Wind Cave National Park}
-#'}
-#'
 #' @param plot_name Quoted string to return a particular plot based on
 #' MacroPlot_Name. Default is "all", which if purpose is set to "NGPN_PCM"
 #' (default), and project is set to "Park" (default), then only NGPN Plant

@@ -332,7 +332,7 @@ try(nps_bounds <- read_sf("./www/Administrative Boundaries of National Park Syst
 
 try(nps_bounds <- read_sf("./docs/www/Administrative Boundaries of National Park System Units.shp"), silent = T)
 
-if(!exists("nps_bounds"))stop("Administrative Boundaries of National Park System Units.shp not found. Please add this to the ./docs/www/ folder")
+if(!exists("nps_bounds"))stop("Administrative Boundaries of National Park System Units.shp \nnot found. Please download it from \nhttps://irma.nps.gov/DataStore/Reference/Profile/2309935 \nand add it to the ./docs/www/ folder")
 
 st_crs(nps_bounds) # EPSG 4269
 
