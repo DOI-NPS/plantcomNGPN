@@ -44,31 +44,23 @@
 #' strata than "Park", that can be specified using the codes below.
 #' Only one project can be specified at a time. Current valid inputs:
 #' \itemize{
-#' \item{"Park":} {Default. *NGPN_PCM* stratum covering whole park (same.}
-#' \item{"ABAM":} {*NGPN_PCM* stratum in WICA.}
-#' \item{"Bodmer":} {*NGPN_PCM* stratum in FOUS.}
-#' \item{"Fort":} {*NGPN_PCM* stratum in FOUS.}
-#' \item{"Native Prairie":} {*NGPN_PCM* stratum in AGFO.}
-#' \item{"North Riparian":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"North Upland":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"North Unit":} {*NGPN_PCM* stratum in BADL.}
-#' \item{"Pine Forest":} {*NGPN_PCM* stratum in DETO, JECA, MORU, and WICA.}
-#' \item{"Prairie":} {*NGPN_PCM* stratum in BADL, DETO, FOUS, KNRI, SCBL, THRO, and WICA.}
-#' \item{"Riparian":} {*NGPN_PCM* stratum in AGFO, DETO, and FOLA.}
-#' \item{"Shrubland":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"South Riparian":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"South Upland":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"Upland":} {*NGPN_PCM* stratum in DETO and FOLA.}
+#' \item{"Park":} {Default. *NGPN_PCM* stratum covering all macroplot names from NGPN sampling.}
+#' \item{"ABAM":} {a stratum in WICA.}
+#' \item{"Bodmer":} {a stratum in FOUS}
+#' \item{"Fort":} {a stratum in FOUS.}
+#' \item{"Native Prairie":} {a stratum in AGFO.}
+#' \item{"North Riparian":} {a stratum in THRO.}
+#' \item{"North Upland":} {a stratum in THRO.}
+#' \item{"North Unit":} {a stratum in BADL.}
+#' \item{"Pine Forest":} {a stratum in DETO, JECA, MORU, and WICA.}
+#' \item{"Prairie":} {a stratum in BADL, DETO, FOUS, KNRI, SCBL, THRO, and WICA.}
+#' \item{"Riparian":} {a stratum in AGFO, DETO, and FOLA.}
+#' \item{"Shrubland":} {a stratum in THRO.}
+#' \item{"South Riparian":} {a stratum in THRO.}
+#' \item{"South Upland":} {a stratum in THRO.}
+#' \item{"Upland":} {a stratum in DETO and FOLA.}
 #' }
-#' Other options include c("ABAM Supplemental", "AnnualBrome_Research",
-#'                         "American Elk Invasive Research", "Archaeology JFSP",
-#'                         "Belle Fourche Invasive Research", "CBI",
-#'                         "Cedar Removal Study", "Centennial Invasive Research",
-#'                         "Control Invasive Research", "Deciduous Woodland",#'
-#'                         "FFI TESTING", "Highland Creek TH Herbicide Trial",
-#'                         "INACTIVE", "Juniper Woodland",
-#'                         "Lithograph Invasive Research", "Monitoring",
-#'                         "Pringle Dog Town Herbicide Trial", "Woodland")
+#' Other options include c("Deciduous Woodland", "INACTIVE")
 #'
 #' @param purpose Quoted string to return plots with a particular purpose, which
 #' typically refers to a characteristic of the plot's sample design in NGPN
@@ -113,7 +105,7 @@
 #'      "FMH Shrub Plot" (BADL, SCBL, and THRO),
 #'      "Forest and Fuels" (MORU, SCBL, and WICA.),
 #'      "Forest Fuels and Vegetation" (WICA),
-#'       "Forest Plot" (WICA),
+#'      "Forest Plot" (WICA),
 #'      "FPCM Grassland plot" (DETO),
 #'      "FX Dual" (DETO and WICA),
 #'      "FX Extensive" (WICA),

@@ -256,7 +256,7 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
 
   # pivot to longer
   panel_sch <- panel_sch |>
-    pivot_longer(!Year,
+    pivot_longer(-Year,
                  names_to = "Panel") |>
     filter(!is.na(value)) |>
     #drop_na() |>
@@ -293,7 +293,7 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
 
   # pivot to longer
   thro_panel_sch <- thro_panel_sch |>
-    pivot_longer(!Year,
+    pivot_longer(-Year,
                  names_to = "Panel") |>
     filter(!is.na(value)) |>
     # drop_na() |>
