@@ -43,38 +43,30 @@
 #'
 #' @param project Quoted string to return plots of a particular project, based
 #' on ProjectUnit_Name. In NGPN, this typically is the strata a given plot
-#' belongs to. By default, selects NGPN_PCM plots, which are plots with "_PCM_"
-#' in their name and the "Park" stratum for those plots. Note that some plots
-#' fall in multiple stratum, such as Park and Native Prairie in AGFO. In those
-#' cases, the "Park" strata is selected by default. If a user wants a different
-#' strata than "Park", that can be specified using the codes below. Only one
-#' project can be specified at a time.
+#' belongs to. By default, selects NGPN_PCM plots, which are plots with "Park" 
+#' stratum. Note that some plots fall in multiple stratum, such as Park and 
+#' Native Prairie in AGFO. In those cases, the "Park" strata is selected by 
+#' default. If a user wants a different strata than "Park", that can be 
+#' specified using the codes below. Only one project can be specified at a time. 
 #' Current valid inputs:
 #' \itemize{
-#' \item{"Park":} {Default. *NGPN_PCM* stratum covering whole park.}
-#' \item{"ABAM":} {*NGPN_PCM* stratum in WICA.}
-#' \item{"Bodmer":} {*NGPN_PCM* stratum in FOUS.}
-#' \item{"Fort":} {*NGPN_PCM* stratum in FOUS.}
-#' \item{"Native Prairie":} {*NGPN_PCM* stratum in AGFO.}
-#' \item{"North Riparian":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"North Upland":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"North Unit":} {*NGPN_PCM* stratum in BADL.}
-#' \item{"Pine Forest":} {*NGPN_PCM* stratum in DETO, JECA, MORU, and WICA.}
-#' \item{"Prairie":} {*NGPN_PCM* stratum in BADL, DETO, FOUS, KNRI, SCBL, THRO, and WICA.}
-#' \item{"Riparian":} {*NGPN_PCM* stratum in AGFO, DETO, and FOLA.}
-#' \item{"Shrubland":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"South Riparian":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"South Upland":} {*NGPN_PCM* stratum in THRO.}
-#' \item{"Upland":} {*NGPN_PCM* stratum in DETO and FOLA.}
+#' \item{"Park":} {Default. *NGPN_PCM* stratum covering all macroplot names from NGPN sampling.}
+#' \item{"ABAM":} {a stratum in WICA.}
+#' \item{"Bodmer":} {a stratum in FOUS}
+#' \item{"Fort":} {a stratum in FOUS.}
+#' \item{"Native Prairie":} {a stratum in AGFO.}
+#' \item{"North Riparian":} {a stratum in THRO.}
+#' \item{"North Upland":} {a stratum in THRO.}
+#' \item{"North Unit":} {a stratum in BADL.}
+#' \item{"Pine Forest":} {a stratum in DETO, JECA, MORU, and WICA.}
+#' \item{"Prairie":} {a stratum in BADL, DETO, FOUS, KNRI, SCBL, THRO, and WICA.}
+#' \item{"Riparian":} {a stratum in AGFO, DETO, and FOLA.}
+#' \item{"Shrubland":} {a stratum in THRO.}
+#' \item{"South Riparian":} {a stratum in THRO.}
+#' \item{"South Upland":} {a stratum in THRO.}
+#' \item{"Upland":} {a stratum in DETO and FOLA.}
 #' }
-#' Other options include c("ABAM Supplemental", "AnnualBrome_Research",
-#'                         "American Elk Invasive Research", "Archaeology JFSP",
-#'                         "Belle Fourche Invasive Research", "CBI",
-#'                         "Cedar Removal Study", "Centennial Invasive Research",
-#'                         "Control Invasive Research", "Deciduous Woodland",#'
-#'                         "FFI TESTING", "Highland Creek TH Herbicide Trial",
-#'                         "INACTIVE", "Juniper Woodland", "Lithograph Invasive Research",
-#'                         "Monitoring", "Pringle Dog Town Herbicide Trial", "Woodland")
+#' Other options include c("Deciduous Woodland", "INACTIVE")
 #'
 #' @param purpose Quoted string to return plots with a particular purpose, which
 #' typically refers to a characteristic of the plot's sample design in NGPN
@@ -142,12 +134,12 @@
 #'
 #' @param mon_status Quoted string. Allows you to select different
 #' MonitoringStatus$MonitoringStatus_Name types. Default is "NGPN_PCM",
-#' which will pull in sample events coded as NGPN Plant Community Monitoring
-#' (see description for NGPN_PCM below). Note: ForestStructure and not yet enabled.
+#' which will pull in sample events coded as NGPN Plant Community Monitoring or Dual
+#' (see description for NGPN_PCM below). Note: ForestStructure not yet enabled.
 #' Current valid inputs:
 #' \itemize{
 #' \item{"all":} {Pulls all records in FFI database.}
-#' \item{"NGPN_PCM":} {Default. Pulls in records with monitoring status name of "PlantCommunity".}
+#' \item{"NGPN_PCM":} {Default. Pulls in records with monitoring status name of "PlantCommunity" and "Dual".}
 #' \item{"FireEffects":} {Fire effects monitoring only}
 #' \item{"ForestStructure":} {ForestStructure only records}
 #' }
@@ -226,7 +218,7 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
   stopifnot(class(complete_events) == "logical")
 
   #---- Panel Schedule ----
-  ## loading panel schedule all
+  ## Panel Schedule all ----
   panel_filepath <- system.file("extdata",
                                 "panel_schedule.csv",
                                 package = "plantcomNGPN")
@@ -239,10 +231,11 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
     stop("Data file 'panel_schedule.csv' not found in inst/extdata.")
   }
 
-  panel_sch <- read.csv(panel_filepath)
+  panel_sch1 <- read.csv(panel_filepath,
+                         na.strings = c("", "NA"))
 
   # making sure it is up-to-date
-  last_year_all <- max(panel_sch$Year, na.rm = TRUE)
+  last_year_all <- max(panel_sch1$Year, na.rm = TRUE)
 
   if(last_year_all < current_year){
     warning(
@@ -255,36 +248,38 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
   }
 
   # pivot to longer
-  panel_sch <- panel_sch |>
+  panel_sch <- panel_sch1 |>
     pivot_longer(-Year,
                  names_to = "Panel") |>
-    filter(!is.na(value)) |>
-    #drop_na() |>
+    dplyr::filter(!is.na(value)) |>
+    # drop_na() |>
     # filtering to current date
     filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
     select(Year,
            Panel)
 
-  ### THRO panel schedule
-  thro_panel_filepath <- system.file("extdata",
-                                     "THRO_panel_schedule.csv",
-                                     package = "plantcomNGPN")
+  ## THRO panel schedules
+  ## THRO upland ----
+  thro_up_panel_filepath <- system.file("extdata",
+                                        "panel_schedule_thro_up.csv",
+                                        package = "plantcomNGPN")
 
   # Bug handing
-  if(thro_panel_filepath == ""){
-    stop("Data file 'THRO_panel_schedule.csv' not found in inst/extdata.")
+  if(!exists("thro_up_panel_filepath")){
+    stop("Data file 'panel_schedule_thro_up.csv' not found in inst/extdata.")
   }
 
   # Loading data
-  thro_panel_sch <- read.csv(thro_panel_filepath)
+  thro_up_panel_sch1 <- read.csv(thro_up_panel_filepath,
+                                 na.strings = c("", "NA"))
 
   # making sure it is up-to-date
-  thro_last_year <- max(thro_panel_sch$Year, na.rm = TRUE)
+  thro_up_last_year <- max(thro_up_panel_sch1$Year, na.rm = TRUE)
 
-  if(thro_last_year < current_year){
+  if(thro_up_last_year < current_year){
     warning(
-      paste0("The THRO_panel_schedule.csv is outdated. The last year recorded was ",
-             thro_last_year,
+      paste0("The panel_schedule_thro_up.csv is outdated. The last year recorded was ",
+             thro_up_last_year,
              ". Please update the panel schedule to ",
              current_year,
              ".")
@@ -292,12 +287,87 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
   }
 
   # pivot to longer
-  thro_panel_sch <- thro_panel_sch |>
+  thro_up_panel_sch <- thro_up_panel_sch1 |>
     pivot_longer(-Year,
                  names_to = "Panel") |>
     filter(!is.na(value)) |>
     # drop_na() |>
     # filtering to current date (will update every year)
+    filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+    select(Year,
+           Panel)
+
+  ## THRO riparian ---- 
+  thro_rip_panel_filepath <- system.file("extdata",
+                                         "panel_schedule_thro_rip.csv",
+                                         package = "plantcomNGPN")
+  
+  # Bug handing
+  if(!exists("thro_rip_panel_filepath")){
+    stop("Data file 'panel_schedule_thro_rip.csv' not found in inst/extdata.")
+  }
+  
+  # Loading data
+  thro_rip_panel_sch1 <- read.csv(thro_rip_panel_filepath,
+                                  na.strings = c("", "NA"))
+  
+  # making sure it is up-to-date
+  thro_rip_last_year <- max(thro_rip_panel_sch1$Year, na.rm = TRUE)
+  
+  if(thro_rip_last_year < current_year){
+    warning(
+      paste0("The panel_schedule_thro_rip.csv is outdated. The last year recorded was ",
+             thro_rip_last_year,
+             ". Please update the panel schedule to ",
+             current_year,
+             ".")
+    )
+  }
+  
+  # pivot to longer
+  thro_rip_panel_sch <- thro_rip_panel_sch1 |>
+    pivot_longer(-Year,
+                 names_to = "Panel") |>
+    filter(!is.na(value)) |>
+    # drop_na() |>
+    # filtering to current date (will update every year)
+    filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+    select(Year,
+           Panel)
+  
+  ## BADL ----
+  badl_panel_filepath <- system.file("extdata",
+                                     "panel_schedule_badl.csv",
+                                     package = "plantcomNGPN")
+  
+  ## Panel schedule not found
+  if(!exists("badl_panel_filepath")){
+    stop("Data file 'panel_schedule_badl.csv' not found in inst/extdata.")
+  }
+  
+  badl_panel_sch1 <- read.csv(badl_panel_filepath,
+                             na.strings = c("", "NA"))
+  
+  # making sure it is up-to-date
+  badl_last_year_all <- max(badl_panel_sch1$Year, na.rm = TRUE)
+  
+  if(badl_last_year_all < current_year){
+    warning(
+      paste0("The panel_schedule_badl.csv is outdated. The last year recorded was ",
+             badl_last_year_all,
+             ". Please update the panel schedule to ",
+             current_year,
+             ".")
+    )
+  }
+  
+  # pivot to longer
+  badl_panel_sch <- badl_panel_sch1 |>
+    pivot_longer(-Year,
+                 names_to = "Panel") |>
+    filter(!is.na(value)) |>
+    #drop_na() |>
+    # filtering to current date
     filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
     select(Year,
            Panel)
@@ -322,7 +392,6 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
   macro_guids <- getMacroPlot(park = park,
                               plot_name = plot_name,
                               project = project,
-                              purpose = purpose,
                               output = 'short')$MacroPlot_GUID
 
   ## filter by macro plot GUID
@@ -333,9 +402,6 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
 
   #---- Filtering Monitoring Status ----
 
-  ## pulling MonitoringStatus_Name column
-  mon_stat_vals <- sampev2[["MonitoringStatus_Name"]]
-
   ## Update monitoring status for options
   sampev3 <-
     # all
@@ -343,7 +409,9 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
     sampev2
     # NGPN_PCM
   } else if(any(mon_status %in% 'NGPN_PCM')){
-    sampev2 |> filter(grepl("_PlantCommunity", MonitoringStatus_Name))
+    sampev2 |> filter(MonitoringStatus_Base %in% c("PlantCommunity",
+                                                   "Dual") &
+                        !grepl("FPCM|LPCM", MacroPlot_Name))
     # FireEffects
   } else if(any(mon_status %in% 'FireEffects')){
     sampev2 |> filter(grepl("Pre|Burn|Post|Year|Yr|yr", MonitoringStatus_Name))
@@ -356,9 +424,8 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
                 mon_status))
   }
 
-  ## monitoring statuses to keep
-  #sampev3 <- sampev2[keep,]
-
+################# WORKING HERE ##########################################################  
+  
   ## filtering by schedule
   sampev4 <- if(purpose == 'NGPN_PCM'){
                # filtering with both schedules
