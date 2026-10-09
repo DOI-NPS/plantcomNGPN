@@ -249,14 +249,14 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
 
   # pivot to longer
   panel_sch <- panel_sch1 |>
-    pivot_longer(-Year,
-                 names_to = "Panel") |>
+    tidyr::pivot_longer(-Year,
+                        names_to = "Panel") |>
     dplyr::filter(!is.na(value)) |>
     # drop_na() |>
     # filtering to current date
-    filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-    select(Year,
-           Panel)
+    dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+    dplyr::select(Year,
+                  Panel)
 
   ## THRO panel schedules
   ## THRO upland ----
