@@ -42,38 +42,30 @@ unmatched plot names.}
 
 \item{project}{Quoted string to return plots of a particular project, based
 on ProjectUnit_Name. In NGPN, this typically is the strata a given plot
-belongs to. By default, selects NGPN_PCM plots, which are plots with "_PCM_"
-in their name and the "Park" stratum for those plots. Note that some plots
-fall in multiple stratum, such as Park and Native Prairie in AGFO. In those
-cases, the "Park" strata is selected by default. If a user wants a different
-strata than "Park", that can be specified using the codes below. Only one
-project can be specified at a time.
+belongs to. By default, selects NGPN_PCM plots, which are plots with "Park" 
+stratum. Note that some plots fall in multiple stratum, such as Park and 
+Native Prairie in AGFO. In those cases, the "Park" strata is selected by 
+default. If a user wants a different strata than "Park", that can be 
+specified using the codes below. Only one project can be specified at a time. 
 Current valid inputs:
 \itemize{
-\item{"Park":} {Default. *NGPN_PCM* stratum covering whole park.}
-\item{"ABAM":} {*NGPN_PCM* stratum in WICA.}
-\item{"Bodmer":} {*NGPN_PCM* stratum in FOUS.}
-\item{"Fort":} {*NGPN_PCM* stratum in FOUS.}
-\item{"Native Prairie":} {*NGPN_PCM* stratum in AGFO.}
-\item{"North Riparian":} {*NGPN_PCM* stratum in THRO.}
-\item{"North Upland":} {*NGPN_PCM* stratum in THRO.}
-\item{"North Unit":} {*NGPN_PCM* stratum in BADL.}
-\item{"Pine Forest":} {*NGPN_PCM* stratum in DETO, JECA, MORU, and WICA.}
-\item{"Prairie":} {*NGPN_PCM* stratum in BADL, DETO, FOUS, KNRI, SCBL, THRO, and WICA.}
-\item{"Riparian":} {*NGPN_PCM* stratum in AGFO, DETO, and FOLA.}
-\item{"Shrubland":} {*NGPN_PCM* stratum in THRO.}
-\item{"South Riparian":} {*NGPN_PCM* stratum in THRO.}
-\item{"South Upland":} {*NGPN_PCM* stratum in THRO.}
-\item{"Upland":} {*NGPN_PCM* stratum in DETO and FOLA.}
+\item{"Park":} {Default. *NGPN_PCM* stratum covering all macroplot names from NGPN sampling.}
+\item{"ABAM":} {a stratum in WICA.}
+\item{"Bodmer":} {a stratum in FOUS}
+\item{"Fort":} {a stratum in FOUS.}
+\item{"Native Prairie":} {a stratum in AGFO.}
+\item{"North Riparian":} {a stratum in THRO.}
+\item{"North Upland":} {a stratum in THRO.}
+\item{"North Unit":} {a stratum in BADL.}
+\item{"Pine Forest":} {a stratum in DETO, JECA, MORU, and WICA.}
+\item{"Prairie":} {a stratum in BADL, DETO, FOUS, KNRI, SCBL, THRO, and WICA.}
+\item{"Riparian":} {a stratum in AGFO, DETO, and FOLA.}
+\item{"Shrubland":} {a stratum in THRO.}
+\item{"South Riparian":} {a stratum in THRO.}
+\item{"South Upland":} {a stratum in THRO.}
+\item{"Upland":} {a stratum in DETO and FOLA.}
 }
-Other options include c("ABAM Supplemental", "AnnualBrome_Research",
-                        "American Elk Invasive Research", "Archaeology JFSP",
-                        "Belle Fourche Invasive Research", "CBI",
-                        "Cedar Removal Study", "Centennial Invasive Research",
-                        "Control Invasive Research", "Deciduous Woodland",#'
-                        "FFI TESTING", "Highland Creek TH Herbicide Trial",
-                        "INACTIVE", "Juniper Woodland", "Lithograph Invasive Research",
-                        "Monitoring", "Pringle Dog Town Herbicide Trial", "Woodland")}
+Other options include c("Deciduous Woodland", "INACTIVE")}
 
 \item{purpose}{Quoted string to return plots with a particular purpose, which
 typically refers to a characteristic of the plot's sample design in NGPN
@@ -141,12 +133,12 @@ Other non NPGN_PCM options include:
 
 \item{mon_status}{Quoted string. Allows you to select different
 MonitoringStatus$MonitoringStatus_Name types. Default is "NGPN_PCM",
-which will pull in sample events coded as NGPN Plant Community Monitoring
-(see description for NGPN_PCM below). Note: ForestStructure and not yet enabled.
+which will pull in sample events coded as NGPN Plant Community Monitoring or Dual
+(see description for NGPN_PCM below). Note: ForestStructure not yet enabled.
 Current valid inputs:
 \itemize{
 \item{"all":} {Pulls all records in FFI database.}
-\item{"NGPN_PCM":} {Default. Pulls in records with monitoring status name of "PlantCommunity".}
+\item{"NGPN_PCM":} {Default. Pulls in records with monitoring status name of "PlantCommunity" and "Dual".}
 \item{"FireEffects":} {Fire effects monitoring only}
 \item{"ForestStructure":} {ForestStructure only records}
 }

@@ -252,7 +252,6 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
     tidyr::pivot_longer(-Year,
                         names_to = "Panel") |>
     dplyr::filter(!is.na(value)) |>
-    # drop_na() |>
     # filtering to current date
     dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
     dplyr::select(Year,
@@ -288,14 +287,13 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
 
   # pivot to longer
   thro_up_panel_sch <- thro_up_panel_sch1 |>
-    pivot_longer(-Year,
-                 names_to = "Panel") |>
-    filter(!is.na(value)) |>
-    # drop_na() |>
-    # filtering to current date (will update every year)
-    filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-    select(Year,
-           Panel)
+    tidyr::pivot_longer(-Year,
+                        names_to = "Panel") |>
+    dplyr::filter(!is.na(value)) |>
+    # filtering to current date
+    dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+    dplyr::select(Year,
+                  Panel)
 
   ## THRO riparian ---- 
   thro_rip_panel_filepath <- system.file("extdata",
@@ -326,14 +324,13 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
   
   # pivot to longer
   thro_rip_panel_sch <- thro_rip_panel_sch1 |>
-    pivot_longer(-Year,
-                 names_to = "Panel") |>
-    filter(!is.na(value)) |>
-    # drop_na() |>
-    # filtering to current date (will update every year)
-    filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-    select(Year,
-           Panel)
+    tidyr::pivot_longer(-Year,
+                        names_to = "Panel") |>
+    dplyr::filter(!is.na(value)) |>
+    # filtering to current date
+    dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+    dplyr::select(Year,
+                  Panel)
   
   ## BADL ----
   badl_panel_filepath <- system.file("extdata",
@@ -363,14 +360,13 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
   
   # pivot to longer
   badl_panel_sch <- badl_panel_sch1 |>
-    pivot_longer(-Year,
-                 names_to = "Panel") |>
-    filter(!is.na(value)) |>
-    #drop_na() |>
+    tidyr::pivot_longer(-Year,
+                        names_to = "Panel") |>
+    dplyr::filter(!is.na(value)) |>
     # filtering to current date
-    filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-    select(Year,
-           Panel)
+    dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+    dplyr::select(Year,
+                  Panel)
 
   #---- Getting SampleEvents ----
   env <- if(exists("VIEWS_NGPN")){VIEWS_NGPN} else {.GlobalEnv}
@@ -409,14 +405,14 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
     sampev2
     # NGPN_PCM
   } else if(any(mon_status %in% 'NGPN_PCM')){
-    sampev2 |> filter(MonitoringStatus_Base %in% c("PlantCommunity",
-                                                   "Dual") &
+    sampev2 |> dplyr::filter(MonitoringStatus_Base %in% c("PlantCommunity",
+                                                          "Dual") &
                         !grepl("FPCM|LPCM", MacroPlot_Name))
     # FireEffects
   } else if(any(mon_status %in% 'FireEffects')){
-    sampev2 |> filter(grepl("Pre|Burn|Post|Year|Yr|yr", MonitoringStatus_Name))
+    sampev2 |> dplyr::filter(grepl("Pre|Burn|Post|Year|Yr|yr", MonitoringStatus_Name))
     # Anything else
-  } else {sampev2 |> filter(grepl(mon_status, MonitoringStatus_Name))}
+  } else {sampev2 |> dplyr::filter(grepl(mon_status, MonitoringStatus_Name))}
 
   # check monitoring status is in the view
   if(nrow(sampev3) == 0){
@@ -424,21 +420,44 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
                 mon_status))
   }
 
-################# WORKING HERE ##########################################################  
+sampev4 <- if(purpose == "NGPN_PCM"){
   
-  ## filtering by schedule
-  sampev4 <- if(purpose == 'NGPN_PCM'){
-               # filtering with both schedules
-               rbind(sampev3 |>
-                           filter(Unit_Name != "THRO") |>
-                           semi_join(panel_sch,
-                                     by = c("MacroPlot_Purpose" = "Panel",
-                                            "year" = "Year")),
-                         sampev3 |>
-                           filter(Unit_Name == "THRO") |>
-                           semi_join(thro_panel_sch,
-                                     by = c("MacroPlot_Purpose" = "Panel",
-                                            "year" = "Year")))
+  ## filtering by schedule  
+  # standard plots
+  all_parks <- sampev3 |>
+    dplyr::filter(!Unit_Name %in% c("BADL",
+                                    "THRO")) |>
+    dplyr::semi_join(panel_sch,
+              by = c("MacroPlot_Purpose" = "Panel",
+                     "year" = "Year"))
+  
+  # badl
+  badl <- sampev3 |>
+    dplyr::filter(Unit_Name == "BADL") |>
+    dplyr::semi_join(badl_panel_sch,
+                     by = c("MacroPlot_Purpose" = "Panel",
+                            "year" = "Year"))
+  
+  # thro upland
+  thro_up <- sampev3 |> 
+    dplyr::filter(Unit_Name == "THRO" &
+                    MacroPlot_Type == "Upland") |>
+    dplyr::semi_join(thro_up_panel_sch,
+                     by = c("MacroPlot_Purpose" = "Panel",
+                            "year" = "Year"))
+  
+  # thro riparian
+  thro_rip <- sampev3 |> 
+    dplyr::filter(Unit_Name == "THRO" &
+                    MacroPlot_Type == "Riparian") |>
+    dplyr::semi_join(thro_up_panel_sch,
+                     by = c("MacroPlot_Purpose" = "Panel",
+                            "year" = "Year"))
+  rbind(all_parks,
+        badl,
+        thro_up,
+        thro_rip)
+  
     } else{sampev3}
 
   # drop MonitoringStatus_Comment, which is how multiple records turn up
@@ -447,7 +466,7 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
   keep_cols <- names(sampev4[!grepl("MonitoringStatus_Comment|MM_MonitoringStatus_GUID",
                                     names(sampev4))])
 
-  sampev5 <- distinct(sampev4[,keep_cols])
+  sampev5 <- dplyr::distinct(sampev4[,keep_cols])
 
   if(nrow(sampev5) == 0){
     stop(paste0("Specified function arguments returned an empty data frame. ",
