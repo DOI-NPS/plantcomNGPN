@@ -411,6 +411,10 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
     # FireEffects
   } else if(any(mon_status %in% 'FireEffects')){
     sampev2 |> dplyr::filter(grepl("Pre|Burn|Post|Year|Yr|yr", MonitoringStatus_Name))
+    # Forest Structure
+  } else if(any(mon_status %in% 'ForestStructure')){
+    sampev2 |> dplyr::filter(MonitoringStatus_Base %in% c("ForestStructure",
+                                                          "Dual"))
     # Anything else
   } else {sampev2 |> dplyr::filter(grepl(mon_status, MonitoringStatus_Name))}
 
@@ -458,7 +462,11 @@ sampev4 <- if(purpose == "NGPN_PCM"){
         thro_up,
         thro_rip)
   
-    } else{sampev3}
+  } else if(purpose == "ForestStructure") {
+    # Panel E
+    sampev3 |> 
+      dplyr::filter(MacroPlot_Purpose == "PanelE")
+  } else{sampev3}
 
   # drop MonitoringStatus_Comment, which is how multiple records turn up
   sampev4$ProjectUnit_Name <- project

@@ -8,8 +8,8 @@ getTrees(
   park = "all",
   plot_name = "all",
   project = "Park",
-  purpose = "NGPN_PCM",
-  mon_status = "NGPN_PCM",
+  purpose = "ForestStructure",
+  mon_status = "ForestStructure",
   years = 2011:format(Sys.Date(), "\%Y"),
   complete_events = TRUE,
   output = "short"
