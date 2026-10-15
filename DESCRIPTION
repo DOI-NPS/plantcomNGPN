@@ -12,6 +12,7 @@ Description: Package imports FFI database tables from SQL Server backend and/or 
 License: MIT 
 Encoding: UTF-8
 LazyData: true
+Depends: R (>= 4.1.0)
 Imports: 
     dplyr,
     purrr,
