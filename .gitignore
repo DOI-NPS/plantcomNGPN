@@ -24,3 +24,4 @@ data/*.zip
 .positai
 *.mp4
 *.png
+data/panel_*.csv
