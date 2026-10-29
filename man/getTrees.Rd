@@ -8,8 +8,8 @@ getTrees(
   park = "all",
   plot_name = "all",
   project = "Park",
-  purpose = "NGPN_PCM",
-  mon_status = "NGPN_PCM",
+  purpose = "ForestStructure",
+  mon_status = "ForestStructure",
   years = 2011:format(Sys.Date(), "\%Y"),
   complete_events = TRUE,
   output = "short"
@@ -88,8 +88,8 @@ in the function.
  Valid inputs:
 \itemize{
 \item{"all":} {All plots in imported FFI database}
-\item{"NGPN_PCM":} {Default. NGPN Plant Community Monitoring Plots with "_PCM_" in their name, and Panel 1 - 10 defined below.}
-\item{"ForestStructure":}{NGPN Forest Structure plot. Found in KNRI and WICA.}
+\item{"NGPN_PCM":} {NGPN Plant Community Monitoring Plots with "_PCM_" in their name, and Panel 1 - 10 defined below.}
+\item{"ForestStructure":}{Default. NGPN Forest Structure plots.}
 \item{"IM_Intensive"}{NGPN intensive monitoring plot. Found in AGFO, FOUS, and THRO.}
 \item{"Panel1":} {NGPN PCM Panel 1}
 \item{"Panel2":} {NGPN PCM Panel 2}
@@ -141,16 +141,16 @@ Other non NPGN_PCM options include:
      "Treatment" (MNRR))}
 
 \item{mon_status}{Quoted string. Allows you to select different
-MonitoringStatus$MonitoringStatus_Name types. Default is "NGPN_PCM",
-which will pull in sample events coded as NGPN Plant Community Monitoring
-(see description for NGPN_PCM below). Note: ForestStructure and not yet enabled.
+MonitoringStatus$MonitoringStatus_Name types. Default is "ForestStructure",
+which will pull in sample events coded as NGPN Plant Community Monitoring - 
+Forest Structure (see description below).
 Current valid inputs:
 \itemize{
 \item{"all":} {Pulls all records in FFI database.}
-\item{"NGPN_PCM":} {Default. Pulls in records with monitoring status name of "PlantCommunity".}
+\item{"NGPN_PCM":} {Pulls in records with monitoring status name of "PlantCommunity".}
 \item{"FireEffects":} {Fire effects monitoring only}
 \item{"FirePlantCommunity":} {FirePlantCommunity only records}
-\item{"ForestStructure":} {ForestStructure only records}
+\item{"ForestStructure":} {Default. ForestStructure only records}
 }
 
 Other options include c("00Pre", "00Pre2", "01Burn", "01Post", "01Pre",
@@ -198,7 +198,7 @@ head(trees_deto)
 
 # get tree data for ForestStructure monitoring status
 trees_for <- getTrees(mon_status = "ForestStructure")
-table(trees_for$Unit_Name, trees_for$MonitoringStatus_Base, useNA = 'always')
+table(trees_for$Unit_Name, trees_for$MonitoringStatus_Name, useNA = 'always')
 
 }
 

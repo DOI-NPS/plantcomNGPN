@@ -28,53 +28,99 @@
 
 # Start of source code ----
 ## Loading data ----
+
 # Species list
 # or UPDATE PATH
-try(tab4_spp <- read.csv("./data/NGPN_PCM_Table_4_Tree_shrub_species_list.csv"), silent = T)
-try(tab4_spp <- read.csv("../data/NGPN_PCM_Table_4_Tree_shrub_species_list.csv"), silent = T)
+
+try(tab4_spp <- read.csv("./data/NGPN_PCM_Table_4_Tree_shrub_species_list.csv"), 
+    silent = T)
+try(tab4_spp <- read.csv("../data/NGPN_PCM_Table_4_Tree_shrub_species_list.csv"),
+    silent = T)
 
 # PCM Panel sampling schedule
-# Path will need to be updated
-try(panel_sch_wide <- read.csv("./data/panel_schedule.csv", na.strings = ""), silent = T)
-try(panel_sch_wide <- read.csv("../data/panel_schedule.csv", na.strings = ""), silent = T)
+# Paths will need to be updated
+
+## All parks ----
+try(panel_sch1 <- read.csv("./data/panel_schedule.csv", na.strings = ""), 
+    silent = T)
+try(panel_sch1 <- read.csv("../data/panel_schedule.csv", na.strings = ""), 
+    silent = T)
 
 # pivot to longer
-panel_sch <- panel_sch_wide |>
-  pivot_longer(!Year,
-               names_to = "Panel") |>
-  drop_na() |>
-  # filtering to current date (will update every year)
-  filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-  select(Year,
-         Panel)
+panel_sch <- panel_sch1 |>
+  tidyr::pivot_longer(-Year,
+                      names_to = "Panel") |>
+  dplyr::filter(!is.na(value)) |>
+  # filtering to current date
+  dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+  dplyr::select(Year,
+                Panel)
 
-#THRO Panel sch
-try(panel_sch_wide_thro <- read.csv("./data/THRO_panel_schedule.csv", na.strings = ""), silent = T)
-try(panel_sch_wide_thro <- read.csv("../data/THRO_panel_schedule.csv", na.strings = ""), silent = T)
+## THRO Panel sch ----
+### Upland
+try(thro_up_panel_sch1 <- read.csv("./data/panel_schedule_thro_up.csv", 
+                                   na.strings = ""), silent = T)
+try(thro_up_panel_sch1 <- read.csv("../data/panel_schedule_thro_up.csv", 
+                                   na.strings = ""), silent = T)
 
 # pivot to longer
-panel_sch_thro <- panel_sch_wide_thro |>
-  pivot_longer(!Year,
-               names_to = "Panel") |>
-  drop_na() |>
-  # filtering to current date (will update every year)
-  filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-  select(Year,
-         Panel)
+thro_up_panel_sch <- thro_up_panel_sch1 |>
+  tidyr::pivot_longer(-Year,
+                      names_to = "Panel") |>
+  dplyr::filter(!is.na(value)) |>
+  # filtering to current date
+  dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+  dplyr::select(Year,
+                Panel)
 
-# Forest panel sampling schedule(not running yet)
-# forest_sch_wide <- read.csv("./data/forest_panel_schedule.csv",
-#                            na.strings = "")
+### Riparian
+### Upland
+try(thro_rip_panel_sch1 <- read.csv("./data/panel_schedule_thro_rip.csv", 
+                                    na.strings = ""), silent = T)
+try(thro_rip_panel_sch1 <- read.csv("../data/panel_schedule_thro_rip.csv", 
+                                    na.strings = ""), silent = T)
+
+# pivot to longer
+thro_rip_panel_sch <- thro_rip_panel_sch1 |>
+  tidyr::pivot_longer(-Year,
+                      names_to = "Panel") |>
+  dplyr::filter(!is.na(value)) |>
+  # filtering to current date
+  dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+  dplyr::select(Year,
+                Panel)
+
+## BADL Panel sch ----
+try(badl_panel_sch1 <- read.csv("./data/panel_schedule_badl.csv", 
+                                na.strings = ""), silent = T)
+try(badl_panel_sch1 <- read.csv("../data/panel_schedule_badl.csv", 
+                                na.strings = ""), silent = T)
+
+# pivot to longer
+badl_panel_sch <- badl_panel_sch1 |>
+  tidyr::pivot_longer(-Year,
+                      names_to = "Panel") |>
+  dplyr::filter(!is.na(value)) |>
+  # filtering to current date
+  dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+  dplyr::select(Year,
+                Panel)
+
+# Forest panel sampling schedule (not running yet) ----
+# try(forest_sch1 <- read.csv("./data/panel_forest_schedule.csv",
+#                             na.strings = ""), silent = T)
+# try(forest_sch1 <- read.csv("../data/panel_forest_schedule.csv",
+#                             na.strings = ""), silent = T)
 #
 # # pivot to linger
-# forest_sch <- forest_sch_wide |>
-#   pivot_longer(!Year,
-#                names_to = "Panel") |>
-#   drop_na()|>
-#   # filtering to current date (will update every year)
-#   filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-#   select(Year,
-#          Panel)
+# forest_sch <- forest_sch1 |>
+# tidyr::pivot_longer(-Year,
+#                     names_to = "Panel") |>
+#   dplyr::filter(!is.na(value)) |>
+#   # filtering to current date
+#   dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+#   dplyr::select(Year,
+#                 Panel)
 
 ## Functions ----
 # Summarize results of QC check
@@ -201,6 +247,10 @@ macro_plots <- macro |>
          MacroPlot_Azimuth,
          MacroPlot_SlopeHill,
          MacroPlot_SlopeTransect,
+         MacroPlot_UV1,
+         MacroPlot_UV2,
+         MacroPlot_UV3,
+         MacroPlot_UV4,
          MacroPlot_GUID) |>
   # naming parks
   mutate(park = substr(MacroPlot_Name, 1, 4)) |>
@@ -215,8 +265,24 @@ macro_samp <- left_join(macro_plots, samp, by = c("MacroPlot_GUID" = "SampleEven
          MacroPlot_Name,
          MacroPlot_GUID,
          MacroPlot_Purpose,
+         MacroPlot_Type,
          SampleEvent_GUID,
-         SampleEvent_Date) |>
+         SampleEvent_Date,
+         MacroPlot_UTM_X,
+         MacroPlot_UTM_Y,
+         MacroPlot_UTMzone,
+         MacroPlot_Datum,
+         MacroPlot_DD_Lat,
+         MacroPlot_DD_Long,
+         MacroPlot_Elevation,
+         MacroPlot_Aspect,
+         MacroPlot_Azimuth,
+         MacroPlot_SlopeHill,
+         MacroPlot_SlopeTransect,
+         MacroPlot_UV1,
+         MacroPlot_UV2,
+         MacroPlot_UV3,
+         MacroPlot_UV4) |>
   # removing duplicates
   distinct()
 
@@ -247,66 +313,108 @@ macro_samp_ms <- macro_samp_ms2 |>
          MacroPlot_Name,
          MonitoringStatus_Name,
          MacroPlot_Purpose,
+         MacroPlot_Type,
          SampleEvent_Date,
-         year)
+         year,
+         MacroPlot_UTM_X,
+         MacroPlot_UTM_Y,
+         MacroPlot_UTMzone,
+         MacroPlot_Datum,
+         MacroPlot_DD_Lat,
+         MacroPlot_DD_Long,
+         MacroPlot_Elevation,
+         MacroPlot_Aspect,
+         MacroPlot_Azimuth,
+         MacroPlot_SlopeHill,
+         MacroPlot_SlopeTransect,
+         MacroPlot_UV1,
+         MacroPlot_UV2,
+         MacroPlot_UV3,
+         MacroPlot_UV4)
 
-## Off Sched Panels ----
-samp_events_off1 <- macro_samp_ms |>
-  mutate(keep = case_when(MonitoringStatus_Name = grepl("Pre|Burn|Post|yr|Yr",
-                                                        MonitoringStatus_Name) ~ 0,
-                          MacroPlot_Purpose = grepl("PanelE",
-                                                    MacroPlot_Purpose) ~ 0,
-                          MacroPlot_Name = grepl("_PCM_",
-                                                 MacroPlot_Name) ~ 1,
+## Panel Filter ----
+# removing sample events from macro_samp_ms that don't have a panel_yr match
+# (keeping all observations for panel_sch)
+
+# standard plots
+all_parks <- macro_samp_ms |>
+  dplyr::filter(!park %in% c("BADL",
+                             "THRO")) |>
+  dplyr::semi_join(panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
+
+# badl
+badl <- macro_samp_ms |>
+  dplyr::filter(park == "BADL") |>
+  dplyr::semi_join(badl_panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
+
+# thro upland
+thro_up <- macro_samp_ms |> 
+  dplyr::filter(park == "THRO" &
+                  MacroPlot_Type == "Upland") |>
+  dplyr::semi_join(thro_up_panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
+
+# thro riparian
+thro_rip <- macro_samp_ms |> 
+  dplyr::filter(park == "THRO" &
+                  MacroPlot_Type == "Riparian") |>
+  dplyr::semi_join(thro_up_panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
+
+macro_samp_ms_all <- rbind(all_parks,
+                           badl,
+                           thro_up,
+                           thro_rip)
+
+# filtering anything that isn't PlantCommunity samples 
+macro_samp_ms_all1 <- macro_samp_ms_all |> 
+  # filtering anything that isn't plant community samples
+  mutate(keep = case_when(!grepl("Fire",
+                                 MonitoringStatus_Name) &
+                            grepl("PlantCommunity",
+                                  MonitoringStatus_Name) ~ 1,
+                          grepl("Dual",
+                                MonitoringStatus_Name) ~ 1,
                           TRUE ~ 0)) |>
-  filter(keep == 1) |>
-  select(-keep)
-
-samp_events_off <- bind_rows(samp_events_off1 |>
-                               filter(!park == "THRO") |>
-                               anti_join(panel_sch,
-                                         by = c("MacroPlot_Purpose" = "Panel",
-                                                "year" = "Year")),
-                             samp_events_off1 |>
-                               filter(park == "THRO") |>
-                               anti_join(panel_sch_thro,
-                                         by = c("MacroPlot_Purpose" = "Panel",
-                                                "year" = "Year"))) |>
-  select(-year) |>
-  arrange(SampleEvent_Date, MacroPlot_Name)
+  filter(keep == 1) |> select(-keep) |>
+  arrange(MacroPlot_Name, year)
+  
+## Off Sched Panels ----
+samp_events_off <- anti_join(macro_samp_ms,
+                             macro_samp_ms_all1) |> 
+  select(park,
+         MacroPlot_Name,
+         MonitoringStatus_Name,
+         MacroPlot_Purpose,
+         SampleEvent_Date)
 
 ### Creating Park List ----
 park_list_samp_off <- sort(unique(samp_events_off$park))
 
 ## Macroplot Checks ----
-macro_plots_all <- getMacroPlot(purpose = "NGPN_PCM") |>
-  mutate(park = substr(MacroPlot_Name, 1, 4))
-
-macro_plots <- bind_rows(macro_plots_all |>
-                           filter(!park == "THRO") |>
-                           semi_join(panel_sch,
-                                     by = c("MacroPlot_Purpose" = "Panel")),
-                         macro_plots_all |>
-                           filter(park == "THRO") |>
-                           semi_join(panel_sch_thro,
-                                     by = c("MacroPlot_Purpose" = "Panel"))) |>
+macro_plots <- macro_samp_ms_all1 |>
   distinct()
 
 park_list <- sort(unique(macro_plots$park))
 
 ### Coordinates Checks ----
 # names(macro_plots)
-names(macro_plots)
 
 ### Missing Coordinates ----
 macro_miss_utm <- macro_plots |>
-  filter(is.na(UTM_X) | is.na(UTM_Y) | is.na(UTMzone)) |>
+  filter(is.na(MacroPlot_UTM_X) | is.na(MacroPlot_UTM_Y) | is.na(MacroPlot_UTMzone)) |>
   select(MacroPlot_Name,
-         UTM_X,
-         UTM_Y,
-         UTMzone,
-         DD_Lat,
-         DD_Long) |>
+         MacroPlot_UTM_X,
+         MacroPlot_UTM_Y,
+         MacroPlot_UTMzone,
+         MacroPlot_DD_Lat,
+         MacroPlot_DD_Long) |>
   arrange(MacroPlot_Name)
 
 # Adding to initial table
@@ -317,11 +425,11 @@ QC_table <- QC_check(df = macro_miss_utm, meas_type = "MacroPlot", tab = "Plot I
 # Individual table
 kbl_macro_miss_utm <- make_kable(macro_miss_utm,
                                  "NGPN PCM plots missing UTM X, Y, and/or Zone data. ") |>
-  column_spec(2, background = ifelse(is.na(macro_miss_utm$UTM_X),
+  column_spec(2, background = ifelse(is.na(macro_miss_utm$MacroPlot_UTM_X),
                                      "#F2F2A0", "white")) |>
-  column_spec(3, background = ifelse(is.na(macro_miss_utm$UTM_Y),
+  column_spec(3, background = ifelse(is.na(macro_miss_utm$MacroPlot_UTM_Y),
                                      "#F2F2A0", "white")) |>
-  column_spec(4, background = ifelse(is.na(macro_miss_utm$UTMzone),
+  column_spec(4, background = ifelse(is.na(macro_miss_utm$MacroPlot_UTMzone),
                                      "#F2F2A0", "white"))
 
 ### Plots outside NPS Bounds ----
@@ -332,9 +440,9 @@ try(nps_bounds <- read_sf("./www/Administrative Boundaries of National Park Syst
 
 try(nps_bounds <- read_sf("./docs/www/Administrative Boundaries of National Park System Units.shp"), silent = T)
 
-if(!exists("nps_bounds"))stop("Administrative Boundaries of National Park System Units.shp not found. Please add this to the ./docs/www/ folder")
+if(!exists("nps_bounds"))stop("Administrative Boundaries of National Park System Units.shp \nnot found. Please download it from \nhttps://irma.nps.gov/DataStore/Reference/Profile/2309935 \nand add it to the ./docs/www/ folder")
 
-st_crs(nps_bounds) # EPSG 4269
+# st_crs(nps_bounds) # EPSG 4269
 
 # lookup for each park
 crs_lookup <- tibble::tribble(~UNIT_CODE, ~crs,
@@ -363,17 +471,18 @@ poly_list <- ngpn_poly |>
 
 # Getting Plot locations
 macro_plots_gps <- macro_plots |>
-  select(Unit_Name,
+  select(park,
          MacroPlot_Name,
-         UTM_X, UTM_Y) |>
-  rename(UNIT_CODE = Unit_Name) |>
-  filter(!is.na(UTM_X)) |>
+         MacroPlot_UTM_X, 
+         MacroPlot_UTM_Y) |>
+  rename(UNIT_CODE = park) |>
+  filter(!is.na(MacroPlot_UTM_X)) |>
   left_join(crs_lookup, by = "UNIT_CODE")
 
 # convert each park to sf object
 pts_list <- macro_plots_gps |>
   split(macro_plots_gps$UNIT_CODE) |>
-  map(~ st_as_sf(.x, coords = c("UTM_X", "UTM_Y"), crs = .x$crs[1]))
+  map(~ st_as_sf(.x, coords = c("MacroPlot_UTM_X", "MacroPlot_UTM_Y"), crs = .x$crs[1]))
 
 # Identify points outside polygons
 out_pts_list <- map(names(pts_list), function(p) {
@@ -409,9 +518,9 @@ kbl_out_pts_utm <- make_kable(out_pts_utm,
 
 ### NPGN plots with non-standard datum ----
 datum <- macro_plots |>
-  select(MacroPlot_Name, UTM_X, UTM_Y,
-         UTMzone, Datum) |>
-  filter(!Datum %in% "NAD83") |>
+  select(MacroPlot_Name, MacroPlot_UTM_X, MacroPlot_UTM_Y,
+         MacroPlot_UTMzone, MacroPlot_Datum) |>
+  filter(!MacroPlot_Datum %in% "NAD83") |>
   arrange(MacroPlot_Name)
 
 QC_table <- rbind(QC_table,
@@ -430,17 +539,17 @@ kbl_datum <- make_kable(datum,
 
 # Getting Plot locations
 macro_plots_DD <- macro_plots |>
-  select(Unit_Name,
+  select(park,
          MacroPlot_Name,
-         DD_Lat,
-         DD_Long) |>
-  rename(UNIT_CODE = Unit_Name) |>
-  filter(!is.na(DD_Lat))
+         MacroPlot_DD_Lat,
+         MacroPlot_DD_Long) |>
+  rename(UNIT_CODE = park) |>
+  filter(!is.na(MacroPlot_DD_Lat))
 
 # convert each park to sf object
 ptsdd_list <- macro_plots_DD |>
   split(macro_plots_DD$UNIT_CODE) |>
-  map(~ st_as_sf(.x, coords = c("DD_Long", "DD_Lat"), crs = 4269))
+  map(~ st_as_sf(.x, coords = c("MacroPlot_DD_Long", "MacroPlot_DD_Lat"), crs = 4269))
 
 # Identify points outside polygons
 out_ptsdd_list <- map(names(ptsdd_list), function(p) {
@@ -478,13 +587,12 @@ kbl_out_pts_dd <- make_kable(out_pts_dd,
 ### Check for blank macro data ----
 macro_blanks <- macro_plots |>
   select(MacroPlot_Name,
-         Elevation,
-         ElevationUnits,
-         Azimuth,
-         Aspect,
-         SlopeHill) |>
-  filter(is.na(Elevation) | is.na(ElevationUnits) | is.na(Azimuth) |
-           is.na(Aspect) | is.na(SlopeHill)) |>
+         MacroPlot_Elevation,
+         MacroPlot_Aspect,
+         MacroPlot_Azimuth,
+         MacroPlot_SlopeHill) |>
+  filter(is.na(MacroPlot_Elevation) | is.na(MacroPlot_Azimuth) | 
+           is.na(MacroPlot_Aspect) | is.na(MacroPlot_SlopeHill)) |>
   arrange(MacroPlot_Name)
 
 QC_table <- rbind(QC_table,
@@ -500,15 +608,15 @@ kbl_macro_blanks <- make_kable(macro_blanks,
 ### Check for impossible macro data ----
 macro_imp <- macro_plots |>
   select(MacroPlot_Name,
-         Elevation,
-         ElevationUnits,
-         Azimuth,
-         Aspect,
-         SlopeHill,
-         SlopeTransect) |>  # slopes should be <= 100%
-  filter(SlopeTransect != 9999,
-         Azimuth > 360 | Azimuth < 0 | Aspect > 360 | Aspect < 0 |
-           SlopeHill > 100 | SlopeTransect > 100) |>
+         MacroPlot_Elevation,
+         MacroPlot_Azimuth,
+         MacroPlot_Aspect,
+         MacroPlot_SlopeHill,
+         MacroPlot_SlopeTransect) |>  # slopes should be <= 100%
+  filter(MacroPlot_SlopeTransect != 9999,
+         MacroPlot_Azimuth > 360 | MacroPlot_Azimuth < 0 | 
+           MacroPlot_Aspect > 360 | MacroPlot_Aspect < 0 |
+           MacroPlot_SlopeHill > 100 | MacroPlot_SlopeTransect > 100) |>
   arrange(MacroPlot_Name)
 
 QC_table <- rbind(QC_table,
@@ -532,9 +640,18 @@ macro_uv <- macro_plots |>
 
 #### UV 1 ----
 # check topo positions that aren't CR, DR, LV, LS, MS, RO, SB, US
+topo_codes <- c('CR', 'DR', 'LV', 'LS', 'MS', 'RO', 'SB', 'US')
+
+pattern <- paste0("^(", 
+                  paste(topo_codes, collapse="|"), 
+                  ")(-(", 
+                  paste(topo_codes, collapse="|"), 
+                  "))?$")
+
 macro_topo <- macro_uv |>
-  filter(!MacroPlot_UV1 %in%
-           c('CR', 'DR', 'LV', 'LS', 'MS', 'RO', 'SB', 'US')) |>
+  filter(!grepl(pattern, MacroPlot_UV1)) |> 
+  # filter(!MacroPlot_UV1 %in%
+  #          c('CR', 'DR', 'LV', 'LS', 'MS', 'RO', 'SB', 'US')) |>
   select(MacroPlot_Name,
          MacroPlot_UV1) |>
   arrange(MacroPlot_Name)
@@ -551,8 +668,17 @@ kbl_macro_topo <- make_kable(macro_topo,
 
 #### UV 4 ----
 # UV4 = Veg type; check vegetation type
+veg_codes <- c("BS", "HR", "PP", "RW", "SH", "UG", "WD")
+
+veg_pattern <- paste0("^(", 
+                      paste(veg_codes, collapse="|"), 
+                      ")(-(", 
+                      paste(veg_codes, collapse="|"), 
+                      "))?$")
+
 macro_veg <- macro_uv |>
-  filter(!MacroPlot_UV4 %in% c("BS", "HR", "PP", "RW", "SH", "UG", "WD")) |>
+  filter(!grepl(veg_pattern, MacroPlot_UV4)) |> 
+  # filter(!MacroPlot_UV4 %in% c("BS", "HR", "PP", "RW", "SH", "UG", "WD")) |>
   select(MacroPlot_Name,
          MacroPlot_UV4) |>
   arrange(MacroPlot_Name)
@@ -613,3 +739,4 @@ QC_check_table <- kable(QC_table,
                 valign = 'top') |>
   row_spec(nrow(QC_table),
            extra_css = 'border-bottom: 1px solid #000000;')
+

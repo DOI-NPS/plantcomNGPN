@@ -24,23 +24,6 @@
 #' \item{"WICA":} {Wind Cave National Park}
 #'}
 #'
-#' @param park Filter on park code (aka Unit_Name). Can select more than one.
-#' Valid inputs:
-#' \itemize{
-#' \item{"all":} {Include all NGPN parks with FFI data}
-#' \item{"AGFO":} {Agate Fossil Beds National Monument}
-#' \item{"BADL":} {Badlands National Park}
-#' \item{"DETO":} {Devils Tower National Monument}
-#' \item{"FOLA":} {Fort Laramie National Historic Site}
-#' \item{"FOUS":} {Fort Union Trading Post National Historic Site}
-#' \item{"JECA":} {Jewel Cave National Monument}
-#' \item{"KNRI":} {Knife River Indian Villages National Historic Sites}
-#' \item{"MORU":} {Mount Rushmore National Monument}
-#' \item{"SCBL":} {Scotts Bluff National Monument}
-#' \item{"THRO":} {Theodore Roosevelt National Park}
-#' \item{"WICA":} {Wind Cave National Park}
-#'}
-#'
 #' @param plot_name Quoted string to return a particular plot based on
 #' MacroPlot_Name. Default is "all", which if purpose is set to "NGPN_PCM"
 #' (default), and project is set to "Park" (default), then only NGPN Plant
@@ -96,8 +79,8 @@
 #'  Valid inputs:
 #' \itemize{
 #' \item{"all":} {All plots in imported FFI database}
-#' \item{"NGPN_PCM":} {Default. NGPN Plant Community Monitoring Plots with "_PCM_" in their name, and Panel 1 - 10 defined below.}
-#' \item{"ForestStructure":}{NGPN Forest Structure plot. Found in KNRI and WICA.}
+#' \item{"NGPN_PCM":} {NGPN Plant Community Monitoring Plots with "_PCM_" in their name, and Panel 1 - 10 defined below.}
+#' \item{"ForestStructure":}{Default. NGPN Forest Structure plots.}
 #' \item{"IM_Intensive"}{NGPN intensive monitoring plot. Found in AGFO, FOUS, and THRO.}
 #' \item{"Panel1":} {NGPN PCM Panel 1}
 #' \item{"Panel2":} {NGPN PCM Panel 2}
@@ -149,16 +132,16 @@
 #'      "Treatment" (MNRR))
 #'
 #' @param mon_status Quoted string. Allows you to select different
-#' MonitoringStatus$MonitoringStatus_Name types. Default is "NGPN_PCM",
-#' which will pull in sample events coded as NGPN Plant Community Monitoring
-#' (see description for NGPN_PCM below). Note: ForestStructure and not yet enabled.
+#' MonitoringStatus$MonitoringStatus_Name types. Default is "ForestStructure",
+#' which will pull in sample events coded as NGPN Plant Community Monitoring - 
+#' Forest Structure (see description below).
 #' Current valid inputs:
 #' \itemize{
 #' \item{"all":} {Pulls all records in FFI database.}
-#' \item{"NGPN_PCM":} {Default. Pulls in records with monitoring status name of "PlantCommunity".}
+#' \item{"NGPN_PCM":} {Pulls in records with monitoring status name of "PlantCommunity".}
 #' \item{"FireEffects":} {Fire effects monitoring only}
 #' \item{"FirePlantCommunity":} {FirePlantCommunity only records}
-#' \item{"ForestStructure":} {ForestStructure only records}
+#' \item{"ForestStructure":} {Default. ForestStructure only records}
 #' }
 #'
 #' Other options include c("00Pre", "00Pre2", "01Burn", "01Post", "01Pre",
@@ -199,7 +182,7 @@
 #'
 #' # get tree data for ForestStructure monitoring status
 #' trees_for <- getTrees(mon_status = "ForestStructure")
-#' table(trees_for$Unit_Name, trees_for$MonitoringStatus_Base, useNA = 'always')
+#' table(trees_for$Unit_Name, trees_for$MonitoringStatus_Name, useNA = 'always')
 #'
 #' }
 #'
@@ -208,7 +191,7 @@
 #' @export
 
 getTrees <- function(park = 'all', plot_name = "all", project = "Park",
-                     purpose = "NGPN_PCM", mon_status = "NGPN_PCM",
+                     purpose = "ForestStructure", mon_status = "ForestStructure",
                      years = 2011:format(Sys.Date(), "%Y"),
                      complete_events = TRUE, output = "short"){
 
@@ -233,13 +216,14 @@ getTrees <- function(park = 'all', plot_name = "all", project = "Park",
   #---- Compile data ----
   env <- if(exists("VIEWS_NGPN")){VIEWS_NGPN} else {.GlobalEnv}
 
-  sampev <- getSampleEvent(park = park,
-                           plot_name = plot_name,
-                           project = project,
-                           purpose = purpose,
-                           mon_status = mon_status,
-                           years = years,
-                           complete_events = complete_events)
+  # sampev is filtering weird......
+  # sampev <- getSampleEvent(park = park,
+  #                          plot_name = plot_name,
+  #                          project = project,
+  #                          purpose = purpose,
+  #                          mon_status = mon_status,
+  #                          years = years,
+  #                          complete_events = complete_events)
 
   ## get trees
   trees <- tryCatch(get("Trees_metric", envir = env),
@@ -250,11 +234,16 @@ getTrees <- function(park = 'all', plot_name = "all", project = "Park",
   trees$ProjectUnit_Name <- project
 
   # Filter on sample events
-  sampev_guids <- unique(sampev$SampleEvent_GUID)
-  trees_samp <- trees[trees$SampleEvent_GUID %in% sampev_guids,]
+  # sampev_guids <- unique(sampev$SampleEvent_GUID)
+  # trees_samp <- trees[trees$SampleEvent_GUID %in% sampev_guids,]
+  
+  trees_samp <- trees |> 
+    dplyr::filter(MonitoringStatus_Base %in% c("Dual",
+                                               "ForestStructure"))
 
   # Drop records where not visited
   trees_samp2 <- trees_samp[trees_samp$Visited == TRUE,]
+
 
   # names(trees_samp2)
 

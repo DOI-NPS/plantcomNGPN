@@ -15,13 +15,17 @@
 # year_hist <- 2011:(year_curr - 1)
 #
 # # If SQL setup:
-# # importData(type = 'local',
-# #            dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
-# #                       "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", #"FFI_RA_MNRR",
-# #                       "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"),
-# #            keep_tables = T)
-#
+# importData(type = 'local',
+#            dbname = c("FFI_RA_AGFO", "FFI_RA_BADL", "FFI_RA_DETO", "FFI_RA_FOLA",
+#                       "FFI_RA_FOUS", "FFI_RA_JECA", "FFI_RA_KNRI", #"FFI_RA_MNRR",
+#                       "FFI_RA_MORU", "FFI_RA_SCBL", "FFI_RA_THRO", "FFI_RA_WICA"),
+#            keep_tables = T)
+
 # # If SQL not set up, use import below instead, and update the import_path:
+# 
+# importData(type = 'csv', 
+#            import_path = "../data/NGPN_FFI_table_export_20261019.zip",
+#            keep_tables = T)
 
 # Start of source code ----
 ## Loading data ----
@@ -29,51 +33,95 @@
 # Species list
 # or UPDATE PATH
 
-try(tab4_spp <- read.csv("./data/NGPN_PCM_Table_4_Tree_shrub_species_list.csv"), silent = T)
-try(tab4_spp <- read.csv("../data/NGPN_PCM_Table_4_Tree_shrub_species_list.csv"), silent = T)
+try(tab4_spp <- read.csv("./data/NGPN_PCM_Table_4_Tree_shrub_species_list.csv"), 
+    silent = T)
+try(tab4_spp <- read.csv("../data/NGPN_PCM_Table_4_Tree_shrub_species_list.csv"),
+    silent = T)
 
 # PCM Panel sampling schedule
-# Path will need to be updated
-try(panel_sch_wide <- read.csv("./data/panel_schedule.csv", na.strings = ""), silent = T)
-try(panel_sch_wide <- read.csv("../data/panel_schedule.csv", na.strings = ""), silent = T)
+# Paths will need to be updated
+
+## All parks ----
+try(panel_sch1 <- read.csv("./data/panel_schedule.csv", na.strings = ""), 
+    silent = T)
+try(panel_sch1 <- read.csv("../data/panel_schedule.csv", na.strings = ""), 
+    silent = T)
 
 # pivot to longer
-panel_sch <- panel_sch_wide |>
-  pivot_longer(!Year,
-               names_to = "Panel") |>
-  drop_na() |>
-  # filtering to current date (will update every year)
-  filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-  select(Year,
-         Panel)
+panel_sch <- panel_sch1 |>
+  tidyr::pivot_longer(-Year,
+                      names_to = "Panel") |>
+  dplyr::filter(!is.na(value)) |>
+  # filtering to current date
+  dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+  dplyr::select(Year,
+                Panel)
 
-#THRO Panel sch
-try(panel_sch_wide_thro <- read.csv("./data/THRO_panel_schedule.csv", na.strings = ""), silent = T)
-try(panel_sch_wide_thro <- read.csv("../data/THRO_panel_schedule.csv", na.strings = ""), silent = T)
+## THRO Panel sch ----
+### Upland
+try(thro_up_panel_sch1 <- read.csv("./data/panel_schedule_thro_up.csv", 
+                                    na.strings = ""), silent = T)
+try(thro_up_panel_sch1 <- read.csv("../data/panel_schedule_thro_up.csv", 
+                                    na.strings = ""), silent = T)
 
 # pivot to longer
-panel_sch_thro <- panel_sch_wide_thro |>
-  pivot_longer(!Year,
-               names_to = "Panel") |>
-  drop_na() |>
-  # filtering to current date (will update every year)
-  filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-  select(Year,
-         Panel)
+thro_up_panel_sch <- thro_up_panel_sch1 |>
+  tidyr::pivot_longer(-Year,
+                      names_to = "Panel") |>
+  dplyr::filter(!is.na(value)) |>
+  # filtering to current date
+  dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+  dplyr::select(Year,
+                Panel)
 
-# Forest panel sampling schedule (not running yet)
-# forest_sch_wide <- read.csv("./data/forest_panel_schedule.csv",
-#                            na.strings = "")
+### Riparian
+### Upland
+try(thro_rip_panel_sch1 <- read.csv("./data/panel_schedule_thro_rip.csv", 
+                                    na.strings = ""), silent = T)
+try(thro_rip_panel_sch1 <- read.csv("../data/panel_schedule_thro_rip.csv", 
+                                    na.strings = ""), silent = T)
+
+# pivot to longer
+thro_rip_panel_sch <- thro_rip_panel_sch1 |>
+  tidyr::pivot_longer(-Year,
+                      names_to = "Panel") |>
+  dplyr::filter(!is.na(value)) |>
+  # filtering to current date
+  dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+  dplyr::select(Year,
+                Panel)
+
+## BADL Panel sch ----
+try(badl_panel_sch1 <- read.csv("./data/panel_schedule_badl.csv", 
+                                na.strings = ""), silent = T)
+try(badl_panel_sch1 <- read.csv("../data/panel_schedule_badl.csv", 
+                                na.strings = ""), silent = T)
+
+# pivot to longer
+badl_panel_sch <- badl_panel_sch1 |>
+  tidyr::pivot_longer(-Year,
+                      names_to = "Panel") |>
+  dplyr::filter(!is.na(value)) |>
+  # filtering to current date
+  dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+  dplyr::select(Year,
+                Panel)
+
+# Forest panel sampling schedule (not running yet) ----
+# try(forest_sch1 <- read.csv("./data/panel_forest_schedule.csv",
+#                             na.strings = ""), silent = T)
+# try(forest_sch1 <- read.csv("../data/panel_forest_schedule.csv",
+#                             na.strings = ""), silent = T)
 #
 # # pivot to linger
-# forest_sch <- forest_sch_wide |>
-#   pivot_longer(!Year,
-#                names_to = "Panel") |>
-#   drop_na()|>
-#   # filtering to current date (will update every year)
-#   filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
-#   select(Year,
-#          Panel)
+# forest_sch <- forest_sch1 |>
+# tidyr::pivot_longer(-Year,
+#                     names_to = "Panel") |>
+#   dplyr::filter(!is.na(value)) |>
+#   # filtering to current date
+#   dplyr::filter(Year <= as.integer(format(Sys.Date(), "%Y"))) |>
+#   dplyr::select(Year,
+#                 Panel)
 
 ## Macroplot Checks ----
 ### Merging tables ----
@@ -123,6 +171,7 @@ macro_samp <- left_join(macro_plots, samp, by = c("MacroPlot_GUID" = "SampleEven
          MacroPlot_Name,
          MacroPlot_GUID,
          MacroPlot_Purpose,
+         MacroPlot_Type,
          SampleEvent_GUID,
          SampleEvent_Date) |>
   # removing duplicates
@@ -155,6 +204,7 @@ macro_samp_ms <- macro_samp_ms2 |>
          MacroPlot_Name,
          MonitoringStatus_Name,
          MacroPlot_Purpose,
+         MacroPlot_Type,
          SampleEvent_Date,
          year)
 
@@ -181,22 +231,42 @@ samp_events_count_fire <- samp_events_fire |>
 ## Panel Filter ----
 # removing sample events from macro_samp_ms that don't have a panel_yr match
 # (keeping all observations for panel_sch)
+  
+# standard plots
+all_parks <- macro_samp_ms |>
+  dplyr::filter(!park %in% c("BADL",
+                                  "THRO")) |>
+  dplyr::semi_join(panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
 
-# THRO filtering
-samp_event_thro <- macro_samp_ms |>
-  filter(park == "THRO") |>
-  # semi joining with panel sch
-  semi_join(panel_sch_thro,
-            by = c("MacroPlot_Purpose" = "Panel",
-                   "year" = "Year"))
+# badl
+badl <- macro_samp_ms |>
+  dplyr::filter(park == "BADL") |>
+  dplyr::semi_join(badl_panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
 
-# Other PCM filtering
-samp_events_all <- macro_samp_ms |>
-  filter(!park == "THRO") |>
-  semi_join(panel_sch,
-            by = c("MacroPlot_Purpose" = "Panel",
-                   "year" = "Year")) |>
-  bind_rows(samp_event_thro)
+# thro upland
+thro_up <- macro_samp_ms |> 
+  dplyr::filter(park == "THRO" &
+                MacroPlot_Type == "Upland") |>
+  dplyr::semi_join(thro_up_panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
+
+# thro riparian
+thro_rip <- macro_samp_ms |> 
+  dplyr::filter(park == "THRO" &
+                MacroPlot_Type == "Riparian") |>
+  dplyr::semi_join(thro_up_panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
+
+samp_events_all <- rbind(all_parks,
+                         badl,
+                         thro_up,
+                         thro_rip)
 
 # filtering plots that NEED a monitoring status name
 samp_events_name <- samp_events_all |>
@@ -222,11 +292,8 @@ samp_events <- samp_events_all |>
   filter(keep == 1) |> select(-keep) |>
   arrange(MacroPlot_Name, year)
 
-samp_events_indv <- samp_events |>
-  distinct()
-
 # checking duplicate rows
-sampe_events_dup <- samp_events[duplicated(samp_events) | duplicated(samp_events, fromLast = TRUE), ]
+samp_events_dup <- samp_events[duplicated(samp_events) | duplicated(samp_events, fromLast = TRUE), ]
 
 ## Sample event counts ----
 samp_events_count <- samp_events |>
@@ -239,8 +306,17 @@ samp_events_count <- samp_events |>
               values_from = count) |>
   arrange(park, year)
 
+## Sample event plot names ----
+samp_events_plot <- samp_events |> 
+  select(park,
+         MacroPlot_Name,
+         MacroPlot_Purpose,
+         year) |> 
+  distinct()
+
 ## Creating Park List ----
 park_list <- sort(unique(macro_plots$park))
 park_list_name <- sort(unique(samp_events_name$park))
 park_list_samp <- sort(unique(samp_events_count$park))
+park_list_dup <- sort(unique(samp_events_dup$park))
 park_list_samp_fire <- sort(unique(samp_events_count_fire$park))

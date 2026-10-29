@@ -282,7 +282,7 @@ getCoverPoints <- function(park = 'all', plot_name = "all", project = "Park",
                                  covpts_samp$Order),
                            final_names]
 
-  sampcov_final <- distinct(sampcov2)
+  sampcov_final <- dplyr::distinct(sampcov2)
 
   if(nrow(sampcov_final) == 0){
     warning("Specified arguments returned an empty dataframe.")
