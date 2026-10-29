@@ -464,8 +464,8 @@ sampev4 <- if(purpose == "NGPN_PCM"){
   
   } else if(purpose == "ForestStructure") {
     # Panel E
-    sampev3 |> 
-      dplyr::filter(MacroPlot_Purpose == "PanelE")
+    sampev3 #|> 
+      # dplyr::filter(MacroPlot_Purpose == "PanelE")
   } else{sampev3}
 
   # drop MonitoringStatus_Comment, which is how multiple records turn up
