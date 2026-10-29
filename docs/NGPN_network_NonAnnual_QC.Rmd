@@ -7,7 +7,7 @@ output:
       in_header: "header_manual.html"
 
 params:
-  year_curr: 2025 # Current year of sampling
+  year_curr: 2026 # Current year of sampling
   all_years: TRUE # If FALSE, only reports on year_curr; TRUE reports on all years; not enabled yet- currently all years
 ---
 
@@ -15,6 +15,8 @@ params:
 knitr::opts_chunk$set(echo = FALSE, vline = "|")
 options(knitr.kable.NA = '', scipen = 100)
 ```
+
+Report rendered on: `r format(Sys.Date(), "%B %d, %Y")`
 
 ## MacroPlot and Sample Event checks {.tabset .tabset-pills}
 
@@ -47,12 +49,12 @@ year_hist <- 2011:(year_curr - 1)
 
 # If SQL not set up, use import below instead, and update the import_path:
 try(importData(type = 'csv', 
-           import_path = "./data/NGPN_FFI_table_export_20260616.zip",
+           import_path = "./data/NGPN_FFI_table_export_20261019.zip",
            keep_tables = T), 
     silent = T)
 
 try(importData(type = 'csv', 
-           import_path = "../data/NGPN_FFI_table_export_20260616.zip",
+           import_path = "../data/NGPN_FFI_table_export_20261019.zip",
            keep_tables = T), 
     silent = T)
 

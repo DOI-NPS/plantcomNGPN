@@ -7,7 +7,7 @@ output:
       in_header: "header_manual.html"
 
 params:
-  year_curr: 2025 # Current year of sampling
+  year_curr: 2026 # Current year of sampling
   all_years: FALSE # If FALSE, only reports on year_curr; TRUE reports on all years; not enabled yet- currently all years
 ---
 
@@ -15,6 +15,8 @@ params:
 knitr::opts_chunk$set(echo = FALSE, vline = "|")
 options(knitr.kable.NA = '', scipen = 100)
 ```
+
+Report rendered on: `r format(Sys.Date(), "%B %d, %Y")`
 
 ## Data Entry QC {.tabset .tabset-pills}
 
@@ -46,11 +48,11 @@ year_hist <- 2011:(year_curr - 1)
 #importViews(import_path = "./docs/data/NGPN_FFI_views_20260616.zip")
 
 try(importData(type = 'csv',
-           import_path = "../data/NGPN_FFI_table_export_20260616.zip",
+           import_path = "../data/NGPN_FFI_table_export_20261019.zip",
            keep_tables = T), silent = T)
 
 try(importData(type = 'csv',
-           import_path = "./data/NGPN_FFI_table_export_20260616.zip",
+           import_path = "./data/NGPN_FFI_table_export_20261019.zip",
            keep_tables = T), silent = T)
 ```
 
@@ -76,6 +78,8 @@ check_null_print(dt_taxa_miss_tsn, 4, "Blank ITIS_TSN")
 
 check_null_print(kbl_taxa_miss_nb, 4, "Blank NotBio")
 
+check_null_print(dt_taxa_dup_notbio, 4, "Inconsistent Species")
+
 cat("\n\n")
 ```
 
@@ -92,6 +96,10 @@ check_null_print(kbl_ht_oor, 4, "Height over 2m")
 
 check_null_print(kbl_point99, 4, "Heights over 99.8pct")
 
+check_null_print(kbl_stat_code, 4, "Status Typos")
+
+# check_null_print(dt_stat_blank, 4, "Status Blanks")
+
 check_null_print(kbl_trans12, 4, "Odd Transects")
 
 cat("\n\n")
@@ -105,6 +113,8 @@ check_null_print(kbl_dtrans12, 4, "Odd Transects")
 check_null_print(kbl_dtrans1, 4, "Transects not = 1")
 
 check_null_print(kbl_subfrac_imp, 4, "Subfrac Typo")
+
+check_null_print(kbl_subbelt, 4, "Subbelt Typo")
 
 check_null_print(kbl_spp_count, 4, "Count != 1")
 
@@ -157,3 +167,87 @@ check_null_print(kbl_dead_miss_uv2, 4, "Dead missing UV2")
 cat("\n\n")
 
 ```
+
+```{r seeds, eval = seed_include, results = 'asis'}
+cat("### Seedlings {.tabset}", "\n\n")
+
+check_null_print(dt_subfrac100, 4, "Under 100 Count")
+
+check_null_print(dt_subfrac100b, 4, "Over 100 Count")
+
+cat("\n\n")
+```
+
+
+```{r cwd, eval = cwd_include, results = 'asis'}
+cat("### Coarse Woody Debris {.tabset}", "\n\n")
+
+check_null_print(dt_cwd_non_pp, 4, "CWD on non-PP plots")
+
+check_null_print(dt_cwd_na, 4, "Blank Transect Data")
+
+check_null_print(kbl_cwd_slope100, 4, "CWD slope over 100")
+
+check_null_print(kbl_cwd_translen, 4, "CWD TransLen not 100")
+
+check_null_print(kbl_cwd_2trans, 4, "Missing CWD Transects")
+
+check_null_print(kbl_cwd_small, 4, "CWD less than 3in")
+
+check_null_print(dt_cwdfuconst, 4, "CWDFuConSt not PP")
+
+check_null_print(dt_cwd99, 4, "CWD diameters over 99%")
+
+cat("\n\n")
+```
+
+```{r fwd, eval = fwd_include, results = 'asis'}
+cat("### Fine Woody Debris {.tabset}", "\n\n")
+
+check_null_print(dt_fwd_non_pp, 4, "FWD on non-PP plots")
+
+check_null_print(dt_fwd_na, 4, "Blank Transect Data")
+
+check_null_print(kbl_fwd_slope100, 4, "FWD slope over 100")
+
+check_null_print(kbl_fwd_az360, 4, "FWD Azimuth over 360")
+
+check_null_print(kbl_fwd_1_10hr, 4, "1-10hr transect not 6ft")
+
+check_null_print(kbl_fwd_100hr, 4, "100hr transect not 12ft")
+
+check_null_print(kbl_fwd_2trans, 4, "Missing FWD Transects")
+
+check_null_print(dt_fwdfuconst, 4, "FWDFuConSt not PP")
+
+check_null_print(dt_fwd_1hr99, 4, "One hour counts over 99pct")
+
+check_null_print(dt_fwd_10hr99, 4, "Ten hour counts over 99pct")
+
+check_null_print(dt_fwd_100hr99, 4, "Hundred hour counts over 99pct")
+
+cat("\n\n")
+```
+
+```{r duff, eval = duff_include, results = 'asis'}
+cat("### Duff and Litter {.tabset}", "\n\n")
+
+check_null_print(dt_duff_non_pp, 4, "Duff on non-PP plots")
+
+check_null_print(dt_duff_na, 4, "Blank Transect Data")
+
+check_null_print(kbl_duff_2trans, 4, "Missing Duff Transects")
+
+check_null_print(dt_duff3, 4, "Depths over 3in")
+
+check_null_print(dt_duff_depth99, 4, "Duff depths over 99pct")
+
+check_null_print(dt_litt_depth99, 4, "Litter depths over 99pct")
+
+check_null_print(dt_dufffuconst, 4, "DLFuConSt not PP")
+
+check_null_print(kbl_duff_samp, 4, "Sample Locations not 10")
+
+cat("\n\n")
+```
+
