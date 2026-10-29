@@ -198,7 +198,7 @@ head(trees_deto)
 
 # get tree data for ForestStructure monitoring status
 trees_for <- getTrees(mon_status = "ForestStructure")
-table(trees_for$Unit_Name, trees_for$MonitoringStatus_Base, useNA = 'always')
+table(trees_for$Unit_Name, trees_for$MonitoringStatus_Name, useNA = 'always')
 
 }
 

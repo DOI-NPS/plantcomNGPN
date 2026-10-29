@@ -182,7 +182,7 @@
 #'
 #' # get tree data for ForestStructure monitoring status
 #' trees_for <- getTrees(mon_status = "ForestStructure")
-#' table(trees_for$Unit_Name, trees_for$MonitoringStatus_Base, useNA = 'always')
+#' table(trees_for$Unit_Name, trees_for$MonitoringStatus_Name, useNA = 'always')
 #'
 #' }
 #'
@@ -216,13 +216,14 @@ getTrees <- function(park = 'all', plot_name = "all", project = "Park",
   #---- Compile data ----
   env <- if(exists("VIEWS_NGPN")){VIEWS_NGPN} else {.GlobalEnv}
 
-  sampev <- getSampleEvent(park = park,
-                           plot_name = plot_name,
-                           project = project,
-                           purpose = purpose,
-                           mon_status = mon_status,
-                           years = years,
-                           complete_events = complete_events)
+  # sampev is filtering weird......
+  # sampev <- getSampleEvent(park = park,
+  #                          plot_name = plot_name,
+  #                          project = project,
+  #                          purpose = purpose,
+  #                          mon_status = mon_status,
+  #                          years = years,
+  #                          complete_events = complete_events)
 
   ## get trees
   trees <- tryCatch(get("Trees_metric", envir = env),
@@ -233,11 +234,16 @@ getTrees <- function(park = 'all', plot_name = "all", project = "Park",
   trees$ProjectUnit_Name <- project
 
   # Filter on sample events
-  sampev_guids <- unique(sampev$SampleEvent_GUID)
-  trees_samp <- trees[trees$SampleEvent_GUID %in% sampev_guids,]
+  # sampev_guids <- unique(sampev$SampleEvent_GUID)
+  # trees_samp <- trees[trees$SampleEvent_GUID %in% sampev_guids,]
+  
+  trees_samp <- trees |> 
+    dplyr::filter(MonitoringStatus_Base %in% c("Dual",
+                                               "ForestStructure"))
 
   # Drop records where not visited
   trees_samp2 <- trees_samp[trees_samp$Visited == TRUE,]
+
 
   # names(trees_samp2)
 

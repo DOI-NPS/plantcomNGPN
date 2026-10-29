@@ -165,7 +165,7 @@
 #' \dontrun{
 #'
 #' library(plantcomNGPN)
-#' importData(import_path = "./data/NGPN_FFI_table_export_20260616.zip")
+#' importData(type = 'csv', import_path = "./data/NGPN_FFI_table_export_20261019.zip")
 #'
 #' # Default return all samples of NGPN Plant Community Monitoring plots (ie vital signs plots),
 #' # for the Park stratum and all purposes used by NGPN from 2011 and later
