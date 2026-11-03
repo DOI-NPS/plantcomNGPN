@@ -238,13 +238,27 @@ getFuelsFine <- function(park = 'all', plot_name = "all", project = "Park",
   sffine_samp <- sffine[sffine$SampleEvent_GUID %in% sampev_guids,]
 
   # Drop records where Visited is NA or F
-  sffine_samp2 <- sffine_samp[sffine_samp$Visited == TRUE,]
+  # sffine_samp2 <- sffine_samp[sffine_samp$Visited == TRUE,]
+  
+  # Removing additional non-PlantCommunity samples that matched sampev_guids for 
+  # NGPN ONLY
+  
+  sffine_samp1 <- if(mon_status == "NGPN_PCM"){
+    # filtering out PlantCommunity only 
+    sffine_samp[sffine_samp$MonitoringStatus_Base == "PlantCommunity",]
+  } else {
+    sffine_samp
+  }
+  
+  # Dropping NA rows
+  sffine_samp2 <- sffine_samp1[!is.na(sffine_samp1$MacroPlot_Name),]
 
   keep_cols <- c("MacroPlot_Name", "Unit_Name", "MacroPlot_Purpose",
                  "ProjectUnit_Name", "UTM_X", "UTM_Y", "UTMzone", "Elevation",
                  "Aspect", "Azimuth", "SlopeHill", "SlopeTransect",
                  "SampleEvent_Date", "year", "month", "doy",
-                 "DefaultMonitoringStatus", #"MonitoringStatus_Base",
+                 # "DefaultMonitoringStatus", 
+                 "MonitoringStatus_Name",#"MonitoringStatus_Base",
                  "Visited",
                  "NumTran", "OneHrTranLen", "TenHrTranLen", "HunHrTranLen",
                  "Index", "Transect", "Azimuth_Fuels", "Slope", "OneHr",

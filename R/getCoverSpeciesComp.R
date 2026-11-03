@@ -247,13 +247,28 @@ getCoverSpeciesComp <- function(park = 'all', plot_name = "all", project = "Park
   covspp_samp <- covspp[covspp$SampleEvent_GUID %in% sampev_guids,]
 
   # Drop records where Index is blank b/c causes issues in the join
-  covspp_samp2 <- covspp_samp[!is.na(covspp_samp$Visited),]
+  # covspp_samp2 <- covspp_samp[!is.na(covspp_samp$Visited),]
+  
+  # Removing additional non-PlantCommunity samples that matched sampev_guids for 
+  # NGPN ONLY
+  
+  covspp_samp1 <- if(mon_status == "NGPN_PCM"){
+    # filtering out PlantCommunity only 
+    covspp_samp[covspp_samp$MonitoringStatus_Base == "PlantCommunity",]
+    } else {
+      covspp_samp
+    }
+  
+  # Dropping NA rows
+  covspp_samp2 <- covspp_samp1[!is.na(covspp_samp1$MacroPlot_Name),]
+  
 
   keep_cols <- c("MacroPlot_Name", "Unit_Name", "MacroPlot_Purpose",
                  "ProjectUnit_Name", "UTM_X", "UTM_Y", "UTMzone", "Elevation",
                  "Aspect", "Azimuth", "SlopeHill", "SlopeTransect",
                  "SampleEvent_Date", "year", "month", "doy",
-                 "DefaultMonitoringStatus", #"MonitoringStatus_Base",
+                 # "DefaultMonitoringStatus", 
+                 "MonitoringStatus_Name", #"MonitoringStatus_Base",
                  "Visited",
                  "UV1Desc", #"UV2Desc", "UV3Desc",
                  "SaComment", "Index", #"Height", #"SizeCl", "AgeCl",

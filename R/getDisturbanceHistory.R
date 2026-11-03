@@ -237,13 +237,27 @@ getDisturbanceHistory <- function(park = 'all', plot_name = "all",
   dist_samp <- disturb[disturb$SampleEvent_GUID %in% sampev_guids,]
 
   # Drop records where Index is blank b/c causes issues in the join
-  dist_samp2 <- dist_samp[dist_samp$Visited == TRUE,]
+  # dist_samp2 <- dist_samp[dist_samp$Visited == TRUE,]
+  
+  # Removing additional non-PlantCommunity samples that matched sampev_guids for 
+  # NGPN ONLY
+  
+  dist_samp1 <- if(mon_status == "NGPN_PCM"){
+    # filtering out PlantCommunity only 
+    dist_samp[dist_samp$MonitoringStatus_Base == "PlantCommunity",]
+  } else {
+    dist_samp
+  }
+  
+  # Dropping NA rows
+  dist_samp2 <- dist_samp1[!is.na(dist_samp1$MacroPlot_Name),]
 
   keep_cols <- c("MacroPlot_Name", "Unit_Name", "MacroPlot_Purpose",
                  "ProjectUnit_Name", "UTM_X", "UTM_Y", "UTMzone", "Elevation",
                  "Aspect", "Azimuth", "SlopeHill", "SlopeTransect",
                  "SampleEvent_Date", "year", "month", "doy",
-                 "DefaultMonitoringStatus", #"MonitoringStatus_Base",
+                 # "DefaultMonitoringStatus", 
+                 "MonitoringStatus_Name",#"MonitoringStatus_Base",
                  "Visited",
                  "Index", "ChAgent", "ChgDesc", "Comment", "UV1", "UV2", "UV3",
                  #"SevCode", "StartYr", "StartMo", "StartDy", "EndYr", "EndDy", "DatePrec",

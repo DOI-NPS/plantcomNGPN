@@ -25,3 +25,4 @@ data/*.zip
 *.mp4
 *.png
 data/panel_*.csv
+testing_scripts.R

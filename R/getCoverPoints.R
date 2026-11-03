@@ -241,16 +241,27 @@ getCoverPoints <- function(park = 'all', plot_name = "all", project = "Park",
   # Filter on sample events
   sampev_guids <- unique(sampev$SampleEvent_GUID)
   covpts_samp <- covpts[covpts$SampleEvent_GUID %in% sampev_guids,]
-
-  # Drop records where Index is blank b/c causes issues in the join
-  # covpts_samp2 <- covpts_samp[!is.na(covpts_samp$Index),]
-
+  
+  # Removing additional non-PlantCommunity samples that matched sampev_guids for 
+  # NGPN ONLY
+  
+  covpts_samp1 <- if(mon_status == "NGPN_PCM"){
+    # filtering out PlantCommunity only 
+    covpts_samp[covpts_samp$MonitoringStatus_Base == "PlantCommunity",]
+  } else {
+    covpts_samp
+  }
+  
+  # Dropping NA rows
+  covpts_samp2 <- covpts_samp1[!is.na(covpts_samp1$MacroPlot_Name),]
+  
   # column ouptut
   keep_cols <- c("MacroPlot_Name", "Unit_Name", "MacroPlot_Purpose",
                  "ProjectUnit_Name", "UTM_X", "UTM_Y", "UTMzone", "Elevation",
                  "Aspect", "Azimuth", "SlopeHill", "SlopeTransect",
                  "SampleEvent_Date", "year", "month", "doy",
-                 "DefaultMonitoringStatus",# "MonitoringStatus_Base", pulling Pre values
+                 # "DefaultMonitoringStatus", 
+                 "MonitoringStatus_Name",# "MonitoringStatus_Base", pulling Pre values
                  "Visited",
                  "NumTran", "TranLen", "NumPtsTran", "Offset", "UV1Desc",
                  "SaComment",# "Index",
@@ -275,11 +286,11 @@ getCoverPoints <- function(park = 'all', plot_name = "all", project = "Park",
   #                                covpts_samp2$Order),
   #                          final_names]
 
-  sampcov2 <- covpts_samp[order(covpts_samp$MacroPlot_Name,
-                                 covpts_samp$SampleEvent_Date,
-                                 covpts_samp$Transect,
-                                 covpts_samp$Point,
-                                 covpts_samp$Order),
+  sampcov2 <- covpts_samp2[order(covpts_samp2$MacroPlot_Name,
+                                 covpts_samp2$SampleEvent_Date,
+                                 covpts_samp2$Transect,
+                                 covpts_samp2$Point,
+                                 covpts_samp2$Order),
                            final_names]
 
   sampcov_final <- dplyr::distinct(sampcov2)

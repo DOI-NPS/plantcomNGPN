@@ -233,14 +233,29 @@ getFuels1000 <- function(park = 'all', plot_name = "all", project = "Park",
   # Filter on sample events
   sampev_guids <- unique(sampev$SampleEvent_GUID)
   sf1000_samp <- sf1000[sf1000$SampleEvent_GUID %in% sampev_guids,]
+  
   # Drop records where Visited is NA or F
-  sf1000_samp2 <- sf1000_samp[sf1000_samp$Visited == TRUE,]
+  # sf1000_samp2 <- sf1000_samp[sf1000_samp$Visited == TRUE,]
+  
+  # Removing additional non-PlantCommunity samples that matched sampev_guids for 
+  # NGPN ONLY
+  
+  sf1000_samp1 <- if(mon_status == "NGPN_PCM"){
+    # filtering out PlantCommunity only 
+    sf1000_samp[sf1000_samp$MonitoringStatus_Base == "PlantCommunity",]
+  } else {
+    sf1000_samp
+  }
+  
+  # Dropping NA rows
+  sf1000_samp2 <- sf1000_samp1[!is.na(sf1000_samp1$MacroPlot_Name),]
 
   keep_cols <- c("MacroPlot_Name", "Unit_Name", "MacroPlot_Purpose",
                  "ProjectUnit_Name", "UTM_X", "UTM_Y", "UTMzone", "Elevation",
                  "Aspect", "Azimuth", "SlopeHill", "SlopeTransect",
                  "SampleEvent_Date", "year", "month", "doy",
-                 "DefaultMonitoringStatus", #"MonitoringStatus_Base",
+                 # "DefaultMonitoringStatus", 
+                 "MonitoringStatus_Name",#"MonitoringStatus_Base",
                  "Visited",
                  "NumTran", "TranLen", "Index", "Transect", "Slope", "LogNum",
                  "Dia", "DecayCl", "CWDFuConSt", "Comment", #"UV1Desc", "UV2Desc",
