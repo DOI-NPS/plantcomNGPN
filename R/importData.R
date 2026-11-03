@@ -556,8 +556,8 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                   paste0(miss_tbls, collapse = ", "))
           }
 
-        # Since the missing test passed, clean up files so only includes names in view_list, but
-        # maintain order in files
+        # Since the missing test passed, clean up files so only includes names 
+        # in view_list, but maintain order in files
         tbls1 <- unzip(import_path[ip], junkpaths = TRUE, exdir = tempdir())
         tbls2 <- sort(tbls1[grepl(".csv", tbls1)])
         tbls <- sort(tbls2[grepl(paste0(csv_list, ".csv", collapse = "|"), tbls2)])
@@ -568,10 +568,13 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                                check.names = FALSE, as.is = T) |>
             dplyr::mutate(datasource = file_name)
 
-          # When fields from one park are all NAs vs other parks have data, read.csv doesn't always assign
-          # them as consistent field types. Converting these to character by default. If importData returns
-          # error that Can't Combine two columns, it needs to be added here. I couldn't figure out how
-          # to generalize this better, given that parks have different tables.
+          # When fields from one park are all NAs vs other parks have data, 
+          # read.csv doesn't always assign them as consistent field types. 
+          # Converting these to character by default. If importData returns
+          # error that Can't Combine two columns, it needs to be added here. 
+          # I couldn't figure out how to generalize this better, given that 
+          # parks have different tables.
+          
           cols_to_char <-
               c("UV1", "UV2", "UV3", "AttributeData_DataRow_GUID",
                 "AttributeData_SampleRow_GUID", "Spp_GUID", "Status",
@@ -660,21 +663,29 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   #---- MacroPlot View -----
   #### Compile MacroPlot data ####
   #env <- if(exists("NGPN_tables")){NGPN_tables} else {.GlobalEnv}
+  
+  ## MacroPlot
   tryCatch(
     macro_orig <- get("MacroPlot", envir = env),
     error = function(e){
       stop("MacroPlot table not found. Please import NGPN FFI data.")
       })
+  
+  ## MM_ProjectUnit
   tryCatch(
     mm_projunit <- get("MM_ProjectUnit_MacroPlot", envir = env),
     error = function(e){
       stop("MM_ProjectUnit_MacroPlot table not found. Please import NGPN FFI data tables.")
       })
+  
+  ## ProjectUnit
   tryCatch(
     projunit <- get("ProjectUnit", envir = env),
     error = function(e){
       stop("ProjectUnit table not found. Please import NGPN FFI data tables.")
       })
+  
+  ## RegistrationUnit
   tryCatch(
     regunit <- get("RegistrationUnit", envir = env),
     error = function(e){
@@ -821,18 +832,24 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
   #---- SampleEvents View ----
   #### Compile Sample Event Data ####
+  
+  ## MonitoringStatus
   tryCatch(
     monstat <- get("MonitoringStatus", envir = env) |>
       select(-datasource),
     error = function(e){
       stop("MonitoringStatus table not found. Please import NGPN FFI data tables.")
       })
+  
+  ## MM_MonitoringStatus_SampleEvents
   tryCatch(
     mm_monstat_se <- get("MM_MonitoringStatus_SampleEvent", envir = env) |>
       select(-datasource),
     error = function(e){
       stop("MM_MonitoringStatus_SampleEvent table not found. Please import NGPN FFI data tables.")
       })
+  
+  ## SampleEvent
   tryCatch(
     sampev <- get("SampleEvent", envir = env) |>
       select(-datasource),
@@ -1089,7 +1106,8 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                        "year", "month", "doy")
 
   cols_view_end <- c("UV1Desc", "UV2Desc", "UV3Desc", "SaComment",
-                     "DefaultMonitoringStatus", "MonitoringStatus_Base",
+                     "DefaultMonitoringStatus", "MonitoringStatus_Base", 
+                     "MonitoringStatus_Name",
                      "MacroPlot_GUID", "SampleEvent_GUID", #"MM_MonitoringStatus_GUID",
                      "RegistrationUnit_GUID", "Spp_GUID")
 
