@@ -237,10 +237,21 @@ getTrees <- function(park = 'all', plot_name = "all", project = "Park",
   # sampev_guids <- unique(sampev$SampleEvent_GUID)
   # trees_samp <- trees[trees$SampleEvent_GUID %in% sampev_guids,]
   
-  trees_samp <- trees |> 
-    dplyr::filter(MonitoringStatus_Base %in% c("Dual",
-                                               "ForestStructure"))
-
+  trees_samp <- if(mon_status == "all"){
+    trees
+  } else if(mon_status == "NGPN_PCM"){
+    trees |> 
+      dplyr::filter(MonitoringStatus_Base %in% c("Dual",
+                                                 "ForestStructure"))
+  } else if(mon_status == "FireEffects"){
+    trees |> 
+      dplyr::filter(grepl("Pre|Burn|Post|Year|Yr|yr", 
+                          MonitoringStatus_Name))
+  } else if(mon_status == "FirePlantCommunity"){
+    trees |> 
+      dplyr::filter(MonitoringStatus_Base %in% "FirePlantCommunity")
+  }
+  
   # Drop records where not visited
   trees_samp2 <- trees_samp[trees_samp$Visited == TRUE,]
 
