@@ -70,77 +70,52 @@
 #'
 #' @param purpose Quoted string to return plots with a particular purpose, which
 #' typically refers to a characteristic of the plot's sample design in NGPN
-#' (e.g., Panel1). This function standardizes some purposes (eg "FX" and "Fire
-#' Effects" are both called "FX monitoring"). The following purposes that can
-#' be specified are below. By default, "NGPN_PCM" plots are selected, which
-#' includes all plots with "_PCM_" in their name and the Panel 1 - 10 associated
-#' with the SOP for vital signs, filtered on the panel schedule. If new purposes
-#' are added in the future, they will need to be added to the bug handling code
-#' in the function.
-#'  Valid inputs:
+#' (e.g., Panel1). The following purposes that can be specified are below. By 
+#' default, "NGPN_PCM" plots are selected, which includes all plots with "_PCM_"
+#' and "_RCM_" in their name and the Panel 1 - 10 associated with the SOP for 
+#' vital signs, filtered on the panel schedule. If new purposes are added in the 
+#' future, they will need to be added to the bug handling code in the function.
+#' 
+#' Valid inputs:
 #' \itemize{
 #' \item{"all":} {All plots in imported FFI database}
-#' \item{"NGPN_PCM":} {Default. NGPN Plant Community Monitoring Plots with "_PCM_" in their name, and Panel 1 - 10 defined below.}
-#' \item{"ForestStructure":}{NGPN Forest Structure plot. Found in KNRI and WICA.}
-#' \item{"IM_Intensive"}{NGPN intensive monitoring plot. Found in AGFO, FOUS, and THRO.}
-#' \item{"Panel1":} {NGPN PCM Panel 1}
-#' \item{"Panel2":} {NGPN PCM Panel 2}
-#' \item{"Panel3":} {NGPN PCM Panel 3}
-#' \item{"Panel4":} {NGPN PCM Panel 4}
-#' \item{"Panel5":} {NGPN PCM Panel 5}
-#' \item{"Panel6":} {NGPN PCM Panel 6}
-#' \item{"Panel7":} {NGPN PCM Panel 7}
-#' \item{"Panel8":} {NGPN PCM Panel 8}
-#' \item{"Panel9":} {NGPN PCM Panel 9}
-#' \item{"Panel10":} {NGPN PCM Panel 10}
-#' \item{"PanelE":} {NGPN PCM Extensive. Found in DETO, FOLA, JECA, MORU, SCBL, and THRO.}
-#' \item(""){A number of PCM plots have a blank purpose. Until this is resolved, or we know these can be dropped, they are included in the NGPN_PCM purpose}
+#' \item{"NGPN_PCM":} {Default. NGPN Plant Community Monitoring Plots with "_PCM_" and "_RCM_" in their name, and Panel 1 - 10.}
+#' \item{"ForestStructure":}{NGPN Forest Structure plots.}
 #' }
-#' Other non NPGN_PCM options include:
-#'    c("AnnualBromeResearch" (BADL, SCBL)
-#'      "ABAM Supplemental" (BADL, FOLA, WICA),
-#'      "CBI plot monitoring" (WICA),
-#'      "Control" (MNRR),
-#'      "Daubenmire Plot" (KNRI),
-#'      "Early Detection" (DETO),
-#'      "FIRE" (JECA, KNRI),
-#'      "Fire/I&M Veg Monitoring Plot" (DETO, KNRI, SCBL, and THRO),
-#'      "Fire/IM Pilot Study Plot" (DETO),
-#'      "FIRE_Dual" (WICA),
-#'      "FMH Forest Plot" (BADL, DETO, JECA, KNRI, MORU, SCBL, THRO, WICA),
-#'      "FMH Grass Plot" (AGFO, BADL, DETO, KNRI, SCBL, THRO, WICA),
-#'      "FMH Shrub Plot" (BADL, SCBL, and THRO),
-#'      "Forest and Fuels" (MORU, SCBL, and WICA.),
-#'      "Forest Fuels and Vegetation" (WICA),
-#'      "Forest Plot" (WICA),
-#'      "FPCM Grassland plot" (DETO),
-#'      "FX Dual" (DETO and WICA),
-#'      "FX Extensive" (WICA),
-#'      "FX Intensive" (BADL, KNRI, THRO),
-#'      "FX Monitoring" (AGFO, BADL, DETO, FOUS, KNRI, MORU, SCBL, THRO, and WICA),
-#'      "HTLN Legacy" (AGFO and SCBL),
-#'      "I&M_tower_vegetation (Found in DETO),
-#'      "IM_FX_Dual" (DETO),
-#'      "IM_veg" (THRO),
-#'      "Invasives Research" (DETO, JECA, and WICA),
-#'      "Lafferty Plot" (MORU), "LTEM/FMH" (AGFO),
-#'      "Modified Forest Plot" (THRO),
-#'      "Modified Shrub Plot" (THRO),
-#'      "NGP Fire Forest Fuel Veg Protcol" (DETO),
-#'      "NGP Grassland Plot - Interior Burn Unit" (BADL),
-#'      "Pre- and Post-treatment of fuels" (JECA),
-#'      "Research" (WICA),
-#'      "Treatment" (MNRR))
+#' 
+#' When \code{purpose = "all"}, returned data may include plot purposes such as:
+#'  \itemize{
+#'    \item{""}
+#'    \item{"FIRE"}
+#'    \item{"FIRE_Dual"}
+#'    \item{"ForestStructure}
+#'    \item{"FX Dual"}
+#'    \item{"FX Intensive"}
+#'    \item{"FX Monitoring"}
+#'    \item{"HTLN Legacy"}
+#'    \item{"IM_Intensive"}
+#'    \item{"Panel1"}
+#'    \item{"Panel2"}
+#'    \item{"Panel3"}
+#'    \item{"Panel4"}
+#'    \item{"Panel5"}
+#'    \item{"Panel6"}
+#'    \item{"Panel7"}
+#'    \item{"Panel8"}
+#'    \item{"Panel9"}
+#'    \item{"Panel10"}
+#'    \item{"PanelE"}
+#'    }
 #'
 #' @param mon_status Quoted string. Allows you to select different
-#' MonitoringStatus$MonitoringStatus_Name types. Default is "NGPN_PCM",
-#' which will pull in sample events coded as NGPN Plant Community Monitoring or Dual
-#' (see description for NGPN_PCM below). Note: ForestStructure not yet enabled.
+#' MonitoringStatus_Name types. Default is "NGPN_PCM", which will pull in sample 
+#' events coded as NGPN Plant Community Monitoring or Dual (see description for 
+#' NGPN_PCM below).
 #' Current valid inputs:
 #' \itemize{
 #' \item{"all":} {Pulls all records in FFI database.}
 #' \item{"NGPN_PCM":} {Default. Pulls in records with monitoring status name of "PlantCommunity" and "Dual".}
-#' \item{"FireEffects":} {Fire effects monitoring only}
+#' \item{"FireEffects":} {Fire effects monitoring only when \code{purpose = "all"}}
 #' \item{"ForestStructure":} {ForestStructure only records}
 #' }
 #'
@@ -396,20 +371,22 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
   ## filter by years selected
   sampev2 <- sampev1[sampev1$year %in% years,]
 
-  #---- Filtering Monitoring Status ----
-
-  ## Update monitoring status for options
-  sampev3 <-
+  #---- Filtering Purpose and Monitoring Status ----
+  
+  sampev3 <- 
+    
     # all
-  if(any(mon_status %in% 'all')){
-    sampev2
-    # NGPN_PCM
-  } else if(any(mon_status %in% 'NGPN_PCM')){
-    sampev2 |> dplyr::filter(MonitoringStatus_Base %in% c("PlantCommunity",
-                                                          "Dual") &
-                        !grepl("FPCM|LPCM", MacroPlot_Name))
+    if(purpose == "all" && mon_status == "all"){
+      sampev2
+    
+    # NGPN Line Point Intercept data types: NGPN_PCM & NGPN_PCM
+  } else if(purpose == "NGPN_PCM" && mon_status == "NGPN_PCM"){
+      sampev2 |> dplyr::filter(MonitoringStatus_Base %in% c("PlantCommunity",
+                                                            "Dual") &
+                                 !grepl("FPCM|LPCM", MacroPlot_Name) &
+                                  grepl("^Panel[0-9]+$", MacroPlot_Purpose))
     # FireEffects
-  } else if(any(mon_status %in% 'FireEffects')){
+  } else if(purpose == "all" && mon_status == "FireEffects"){
     sampev2 |> dplyr::filter(grepl("Pre|Burn|Post|Year|Yr|yr", MonitoringStatus_Name))
     # Forest Structure
   } else if(any(mon_status %in% 'ForestStructure')){
