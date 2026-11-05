@@ -973,87 +973,115 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   # NGPN does not appear to use the SpeciesPickList, so not including here.
   # lifecycle doesn't appear to be used much by NGPN, so not including it here.
 
+  # Drop table names from most column names for easier coding
+  names(localspp)[2:19] <- gsub("^LocalSpecies_", "", names(localspp)[2:19])
+  
+  names(mastspp)[5:18] <- gsub("^MasterSpecies_", "", names(mastspp)[5:18])
+  
+  names(auxspp)[3:11] <- gsub("^AuxSpecies_", "", names(auxspp)[3:11])
+  
   # Table joins
   locspp_reg <- left_join(localspp, regunit,
-                          by = c("LocalSpecies_RegistrationUnitGUID" = "RegistrationUnit_GUID",
+                          # by = c("LocalSpecies_RegistrationUnitGUID" = "RegistrationUnit_GUID",
+                          by = c("RegistrationUnitGUID" = "RegistrationUnit_GUID",
                                  "datasource"))
 
   spp1 <- left_join(locspp_reg, auxspp,
-                    by = c("LocalSpecies_AuxSpeciesGUID" = "AuxSpecies_GUID",
-                           "LocalSpecies_RegistrationUnitGUID" = "AuxSpecies_RegistrationUnitGUID",
-                           "datasource"))
+                    # by = c("LocalSpecies_AuxSpeciesGUID" = "AuxSpecies_GUID",
+                    by = c("AuxSpeciesGUID" = "AuxSpecies_GUID",
+                           # "LocalSpecies_RegistrationUnitGUID" = "AuxSpecies_RegistrationUnitGUID",
+                           "RegistrationUnitGUID" = "AuxSpecies_RegistrationUnitGUID",
+                           "datasource",
+                           "Symbol"))
 
   spp2 <- left_join(spp1, mastspp,
-                    by = c("LocalSpecies_MasterSpeciesGUID" = "MasterSpecies_GUID",
-                           'datasource'))
+                    # by = c("LocalSpecies_MasterSpeciesGUID" = "MasterSpecies_GUID",
+                    by = c("MasterSpeciesGUID" = "MasterSpecies_GUID",
+                           'datasource',
+                           "Symbol",
+                           "ScientificName",
+                           "ITIS_TSN",
+                           "Genus",
+                           "Family",
+                           "CommonName",
+                           "Nativity",
+                           "DefaultLifeFormGUID",
+                           "NotBiological"))
 
   spp3 <- left_join(spp2, lifeform,
-                    by = c("LocalSpecies_PreferedLifeForm_GUID" = "LU_LifeForm_GUID",
+                    # by = c("LocalSpecies_PreferedLifeForm_GUID" = "LU_LifeForm_GUID",
+                    by = c("PreferedLifeForm_GUID" = "LU_LifeForm_GUID",
                            "datasource"))
 
+  # NO LONGER NEEDED WITH HOW I AM JOINING ABOVE 
   # Merge Master and Aux species list to return complete species list.
-  spp3$ScientificName <- ifelse(is.na(spp3$MasterSpecies_ScientificName),
-                                spp3$AuxSpecies_ScientificName,
-                                spp3$MasterSpecies_ScientificName)
+  # spp3$ScientificName <- ifelse(is.na(spp3$MasterSpecies_ScientificName),
+  #                               spp3$AuxSpecies_ScientificName,
+  #                               spp3$MasterSpecies_ScientificName)
+  # 
+  # spp3$ITIS_TSN <- ifelse(is.na(spp3$MasterSpecies_ITIS_TSN),
+  #                         spp3$AuxSpecies_ITIS_TSN,
+  #                         spp3$MasterSpecies_ITIS_TSN)
+  # 
+  # spp3$Family <- ifelse(is.na(spp3$MasterSpecies_Family),
+  #                       spp3$AuxSpecies_Family,
+  #                       spp3$MasterSpecies_Family)
+  # 
+  # spp3$Genus <- ifelse(is.na(spp3$MasterSpecies_Genus),
+  #                      spp3$AuxSpecies_Genus,
+  #                      spp3$MasterSpecies_Genus)
+  # 
+  # spp3$Symbol <- ifelse(is.na(spp3$MasterSpecies_Symbol),
+  #                       spp3$AuxSpecies_Symbol,
+  #                       spp3$MasterSpecies_Symbol)
+  # 
+  # spp3$NotBiological <- ifelse(is.na(spp3$MasterSpecies_NotBiological),
+  #                              spp3$AuxSpecies_NotBiological,
+  #                              spp3$MasterSpecies_NotBiological)
+  # 
+  # spp3$Nativity <- ifelse(is.na(spp3$LocalSpecies_Nativity),
+  #                         spp3$MasterSpecies_Nativity,
+  #                         spp3$LocalSpecies_Nativity)
+  # 
+  # spp3$CommonName <- ifelse(is.na(spp3$LocalSpecies_CommonName),
+  #                           spp3$MasterSpecies_CommonName,
+  #                           spp3$LocalSpecies_CommonName)
 
-  spp3$ITIS_TSN <- ifelse(is.na(spp3$MasterSpecies_ITIS_TSN),
-                          spp3$AuxSpecies_ITIS_TSN,
-                          spp3$MasterSpecies_ITIS_TSN)
-
-  spp3$Family <- ifelse(is.na(spp3$MasterSpecies_Family),
-                        spp3$AuxSpecies_Family,
-                        spp3$MasterSpecies_Family)
-
-  spp3$Genus <- ifelse(is.na(spp3$MasterSpecies_Genus),
-                       spp3$AuxSpecies_Genus,
-                       spp3$MasterSpecies_Genus)
-
-  spp3$Symbol <- ifelse(is.na(spp3$MasterSpecies_Symbol),
-                        spp3$AuxSpecies_Symbol,
-                        spp3$MasterSpecies_Symbol)
-
-  spp3$NotBiological <- ifelse(is.na(spp3$MasterSpecies_NotBiological),
-                               spp3$AuxSpecies_NotBiological,
-                               spp3$MasterSpecies_NotBiological)
-
-  spp3$Nativity <- ifelse(is.na(spp3$LocalSpecies_Nativity),
-                          spp3$MasterSpecies_Nativity,
-                          spp3$LocalSpecies_Nativity)
-
-  spp3$CommonName <- ifelse(is.na(spp3$LocalSpecies_CommonName),
-                            spp3$MasterSpecies_CommonName,
-                            spp3$LocalSpecies_CommonName)
-
-  spp4 <- spp3 |> select(-MasterSpecies_ScientificName,
-                         -AuxSpecies_ScientificName,
-                         -MasterSpecies_ITIS_TSN,
-                         -AuxSpecies_ITIS_TSN,
-                         -MasterSpecies_Family,
-                         -AuxSpecies_Family,
-                         -MasterSpecies_Genus,
-                         -AuxSpecies_Genus,
-                         -MasterSpecies_Symbol,
-                         -LocalSpecies_Symbol,
-                         -AuxSpecies_Symbol,
-                         -MasterSpecies_NotBiological,
-                         -AuxSpecies_NotBiological,
-                         -LocalSpecies_Nativity,
-                         -MasterSpecies_Nativity,
-                         -LocalSpecies_CommonName,
-                         -MasterSpecies_CommonName)
+  # spp4 <- spp3 |> select(-MasterSpecies_ScientificName,
+  #                        -AuxSpecies_ScientificName,
+  #                        -MasterSpecies_ITIS_TSN,
+  #                        -AuxSpecies_ITIS_TSN,
+  #                        -MasterSpecies_Family,
+  #                        -AuxSpecies_Family,
+  #                        -MasterSpecies_Genus,
+  #                        -AuxSpecies_Genus,
+  #                        -MasterSpecies_Symbol,
+  #                        -LocalSpecies_Symbol,
+  #                        -AuxSpecies_Symbol,
+  #                        -MasterSpecies_NotBiological,
+  #                        -AuxSpecies_NotBiological,
+  #                        -LocalSpecies_Nativity,
+  #                        -MasterSpecies_Nativity,
+  #                        -LocalSpecies_CommonName,
+  #                        -MasterSpecies_CommonName)
 
   # hacky way to keep LocalSpecies_UV1 as is
-  names(spp4)[names(spp4) == "LocalSpecies_GUID"] <- "Spp_GUID"
-  names(spp4)[names(spp4) == "LocalSpecies_UV1"] <- "Species_UV1"
-  names(spp4)[names(spp4) == "LocalSpecies_Description"] <- "Species_Description"
-  names(spp4)[names(spp4) == "LocalSpecies_Comment"] <- "Species_Comment"
+  # names(spp4)[names(spp4) == "LocalSpecies_GUID"] <- "Spp_GUID"
+  # names(spp4)[names(spp4) == "LocalSpecies_UV1"] <- "Species_UV1"
+  # names(spp4)[names(spp4) == "LocalSpecies_Description"] <- "Species_Description"
+  # names(spp4)[names(spp4) == "LocalSpecies_Comment"] <- "Species_Comment"
+  
+  names(spp3)[names(spp3) == "LocalSpecies_GUID"] <- "Spp_GUID"
+  names(spp3)[names(spp3) == "UV1"] <- "Species_UV1"
+  names(spp3)[names(spp3) == "Description"] <- "Species_Description"
+  names(spp3)[names(spp3) == "Comment"] <- "Species_Comment"
 
   # Drop table names from column names for easier coding
-  names(spp4) <-
+  names(spp3) <-
     gsub("^MacroPlot_|^LocalSpecies_|^MasterSpecies_|^LU_|^AuxSpecies_|^Registration",
-         "", names(spp4))
+         "", names(spp3))
 
-  names(spp4)[names(spp4) == "UnitGUID"] <- "RegistrationUnitGUID"
+  names(spp3)[names(spp3) == "UnitGUID"] <- "RegistrationUnitGUID"
 
   keep_cols_taxa <- c("Symbol", "ITIS_TSN", "ScientificName", "CommonName",
                       "Family", "Genus", "Nativity", "Invasive", "Cultural",
@@ -1064,7 +1092,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                       "RegistrationUnitGUID", "MasterSpeciesGUID",
                       "AuxSpeciesGUID", "PLANTS_GUID")
 
-  Taxa_Table <- data.frame(spp4[order(spp4$Symbol, spp4$Unit_Name),
+  Taxa_Table <- data.frame(spp3[order(spp3$Symbol, spp3$Unit_Name),
                                 keep_cols_taxa])
 
   #---- Cover_Points_Metric View ----
