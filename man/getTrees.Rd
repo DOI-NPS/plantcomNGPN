@@ -149,7 +149,7 @@ Current valid inputs:
 \item{"all":} {Pulls all records in FFI database.}
 \item{"NGPN_PCM":} {Pulls in records with monitoring status name of "PlantCommunity".}
 \item{"FireEffects":} {Fire effects monitoring only}
-\item{"FirePlantCommunity":} {FirePlantCommunity only records}
+\item{"FirePlantCommunity":} {FirePlantCommunity only records. Not yet enabled}
 \item{"ForestStructure":} {Default. ForestStructure only records}
 }
 

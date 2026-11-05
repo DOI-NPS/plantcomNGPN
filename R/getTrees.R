@@ -140,7 +140,7 @@
 #' \item{"all":} {Pulls all records in FFI database.}
 #' \item{"NGPN_PCM":} {Pulls in records with monitoring status name of "PlantCommunity".}
 #' \item{"FireEffects":} {Fire effects monitoring only}
-#' \item{"FirePlantCommunity":} {FirePlantCommunity only records}
+#' \item{"FirePlantCommunity":} {FirePlantCommunity only records. Not yet enabled}
 #' \item{"ForestStructure":} {Default. ForestStructure only records}
 #' }
 #'
@@ -216,14 +216,13 @@ getTrees <- function(park = 'all', plot_name = "all", project = "Park",
   #---- Compile data ----
   env <- if(exists("VIEWS_NGPN")){VIEWS_NGPN} else {.GlobalEnv}
 
-  # sampev is filtering weird......
-  # sampev <- getSampleEvent(park = park,
-  #                          plot_name = plot_name,
-  #                          project = project,
-  #                          purpose = purpose,
-  #                          mon_status = mon_status,
-  #                          years = years,
-  #                          complete_events = complete_events)
+  sampev <- getSampleEvent(park = park,
+                           plot_name = plot_name,
+                           project = project,
+                           purpose = purpose,
+                           mon_status = mon_status,
+                           years = years,
+                           complete_events = complete_events)
 
   ## get trees
   trees <- tryCatch(get("Trees_metric", envir = env),
@@ -233,27 +232,48 @@ getTrees <- function(park = 'all', plot_name = "all", project = "Park",
 
   trees$ProjectUnit_Name <- project
 
-  # Filter on sample events
-  # sampev_guids <- unique(sampev$SampleEvent_GUID)
-  # trees_samp <- trees[trees$SampleEvent_GUID %in% sampev_guids,]
+  #---- Filter on sample events ----
+  sampev_guids <- unique(sampev$SampleEvent_GUID)
+  trees_samp <- trees[trees$SampleEvent_GUID %in% sampev_guids,]
   
-  trees_samp <- if(mon_status == "all"){
-    trees
-  } else if(mon_status == "NGPN_PCM"){
-    trees |> 
-      dplyr::filter(MonitoringStatus_Base %in% c("Dual",
-                                                 "ForestStructure"))
-  } else if(mon_status == "FireEffects"){
-    trees |> 
-      dplyr::filter(grepl("Pre|Burn|Post|Year|Yr|yr", 
-                          MonitoringStatus_Name))
-  } else if(mon_status == "FirePlantCommunity"){
-    trees |> 
-      dplyr::filter(MonitoringStatus_Base %in% "FirePlantCommunity")
-  }
+  #---- Filter on Monitoring Status ----
+  trees_samp1 <- 
+      # all
+    if(mon_status == "all"){
+       trees
+      # Forest Structure
+     } else if(mon_status == "ForestStructure"){
+       trees_samp |> 
+         dplyr::filter(grepl("Dual|ForestStructure", 
+                             MonitoringStatus_Name))
+      # NGPN_PCM 
+     } else if (mon_status == "NGPN_PCM"){
+       trees_samp |> 
+         dplyr::filter(grepl("_PlantCommunity|Dual", 
+                             MontiroingStatus_Name))
+      # Fire Effects
+     } else if(mon_status == "FireEffects"){
+       trees |> # filtering from trees until I know what plots are needed. 
+         dplyr::filter(grepl("Pre|Burn|Post|Year|Yr|yr|Ext", 
+                             MonitoringStatus_Name))
+      # Fire Plant Community 
+     # } else if(mon_status == "FirePlantCommunity"){
+     #   trees_samp |> 
+     #     dplyr::filter(grepl("FirePlantCommunity", 
+     #                         MonitoringStatus_Name))
+      # Anything else
+     } else {
+       trees_samp |> 
+         dplyr::filter(grepl(mon_status, MonitoringStatus_Name))}
+     
+     # check monitoring status is in the view
+     if(nrow(trees_samp1) == 0){
+       stop(paste0("Specified mon_status not found in data: ",
+                   mon_status))
+     }
   
   # Drop records where not visited
-  trees_samp2 <- trees_samp[trees_samp$Visited == TRUE,]
+  trees_samp2 <- trees_samp1[trees_samp1$Visited == TRUE,]
 
 
   # names(trees_samp2)

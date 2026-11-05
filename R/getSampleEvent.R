@@ -378,10 +378,12 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
       }
   )
 
+  ## formatting date
   sampev$SampleEvent_Date <- format(as.Date(substr(sampev$SampleEvent_Date,
                                                    1, 11),
                                             format = "%Y-%m-%d"), "%Y-%m-%d")
 
+  ## formatting year
   sampev$year <- as.integer(sampev$year)
 
   #---- Getting MacroPlot info ----
@@ -400,74 +402,100 @@ getSampleEvent <- function(park = 'all', plot_name = "all", project = "Park",
 
   ## Update monitoring status for options
   sampev3 <-
-    # all
-  if(any(mon_status %in% 'all')){
-    sampev2
-    # NGPN_PCM
-  } else if(any(mon_status %in% 'NGPN_PCM')){
-    sampev2 |> dplyr::filter(MonitoringStatus_Base %in% c("PlantCommunity",
-                                                          "Dual") &
-                        !grepl("FPCM|LPCM", MacroPlot_Name))
-    # FireEffects
-  } else if(any(mon_status %in% 'FireEffects')){
-    sampev2 |> dplyr::filter(grepl("Pre|Burn|Post|Year|Yr|yr", MonitoringStatus_Name))
-    # Forest Structure
-  } else if(any(mon_status %in% 'ForestStructure')){
-    sampev2 |> dplyr::filter(MonitoringStatus_Base %in% c("ForestStructure",
-                                                          "Dual"))
-    # Anything else
-  } else {sampev2 |> dplyr::filter(grepl(mon_status, MonitoringStatus_Name))}
+     # all
+     if(any(mon_status %in% 'all')){
+       sampev2
+       
+       # NGPN_PCM
+     } else if(any(mon_status %in% 'NGPN_PCM')){
+       sampev2 |> 
+         dplyr::filter(grepl("_PlantCommunity|Dual", MonitoringStatus_Name) &
+                         !grepl("FPCM|LPCM", MacroPlot_Name))
+       
+       # FireEffects
+     } else if(any(mon_status %in% 'FireEffects')){
+       sampev2 |>
+         dplyr::filter(grepl("Pre|Burn|Post|Year|Yr|yr", MonitoringStatus_Name))
+       
+       # Forest Structure
+     } else if(any(mon_status %in% 'ForestStructure')){
+       sampev2 |> 
+         dplyr::filter(grepl("ForestStructure|Dual", MonitoringStatus_Name))
+       
+       # Anything else
+     } else {
+       sampev2 |> 
+         dplyr::filter(grepl(mon_status, MonitoringStatus_Name))}
 
-  # check monitoring status is in the view
-  if(nrow(sampev3) == 0){
-    stop(paste0("Specified mon_status not found in data: ",
-                mon_status))
-  }
+     # check monitoring status is in the view
+     if(nrow(sampev3) == 0){
+       stop(paste0("Specified mon_status not found in data: ",
+                   mon_status))
+     }
 
-sampev4 <- if(purpose == "NGPN_PCM"){
+  #---- Filtering Purpose ----
   
-  ## filtering by schedule  
-  # standard plots
-  all_parks <- sampev3 |>
-    dplyr::filter(!Unit_Name %in% c("BADL",
-                                    "THRO")) |>
-    dplyr::semi_join(panel_sch,
-              by = c("MacroPlot_Purpose" = "Panel",
-                     "year" = "Year"))
+  ## Update purpose for options
+  sampev4 <- 
+     # all
+     if(purpose == "all"){
+       sampev3
+       
+       # NGPN Plots
+     } else if(purpose == "NGPN_PCM"){
+       
+       ## filtering by schedule  
+       # standard plots
+       all_parks <- sampev3 |>
+         dplyr::filter(!Unit_Name %in% c("BADL",
+                                         "THRO")) |>
+         dplyr::semi_join(panel_sch,
+                   by = c("MacroPlot_Purpose" = "Panel",
+                          "year" = "Year"))
+       
+       # badl
+       badl <- sampev3 |>
+         dplyr::filter(Unit_Name == "BADL") |>
+         dplyr::semi_join(badl_panel_sch,
+                          by = c("MacroPlot_Purpose" = "Panel",
+                                 "year" = "Year"))
+       
+       # thro upland
+       thro_up <- sampev3 |> 
+         dplyr::filter(Unit_Name == "THRO" &
+                         MacroPlot_Type == "Upland") |>
+         dplyr::semi_join(thro_up_panel_sch,
+                          by = c("MacroPlot_Purpose" = "Panel",
+                                 "year" = "Year"))
+       
+       # thro riparian
+       thro_rip <- sampev3 |> 
+         dplyr::filter(Unit_Name == "THRO" &
+                         MacroPlot_Type == "Riparian") |>
+         dplyr::semi_join(thro_up_panel_sch,
+                          by = c("MacroPlot_Purpose" = "Panel",
+                                 "year" = "Year"))
+       rbind(all_parks,
+             badl,
+             thro_up,
+             thro_rip)
+       
+       # Forest Structure 
+     } else if(purpose == "ForestStructure") {
+       sampev3
+       
+       # Anything else
+     } else {
+       sampev3 |> 
+         dplyr::filter(grepl(purpose, MonitoringStatus_Name))}
   
-  # badl
-  badl <- sampev3 |>
-    dplyr::filter(Unit_Name == "BADL") |>
-    dplyr::semi_join(badl_panel_sch,
-                     by = c("MacroPlot_Purpose" = "Panel",
-                            "year" = "Year"))
-  
-  # thro upland
-  thro_up <- sampev3 |> 
-    dplyr::filter(Unit_Name == "THRO" &
-                    MacroPlot_Type == "Upland") |>
-    dplyr::semi_join(thro_up_panel_sch,
-                     by = c("MacroPlot_Purpose" = "Panel",
-                            "year" = "Year"))
-  
-  # thro riparian
-  thro_rip <- sampev3 |> 
-    dplyr::filter(Unit_Name == "THRO" &
-                    MacroPlot_Type == "Riparian") |>
-    dplyr::semi_join(thro_up_panel_sch,
-                     by = c("MacroPlot_Purpose" = "Panel",
-                            "year" = "Year"))
-  rbind(all_parks,
-        badl,
-        thro_up,
-        thro_rip)
-  
-  } else if(purpose == "ForestStructure") {
-    # Panel E
-    sampev3 #|> 
-      # dplyr::filter(MacroPlot_Purpose == "PanelE")
-  } else{sampev3}
+     # check macroplot purpose is in the view
+     if(nrow(sampev4) == 0){
+       stop(paste0("Specified purpose not found in data: ",
+                   purpose))
+     }
 
+  #---- Cleaning up Columns ----
   # drop MonitoringStatus_Comment, which is how multiple records turn up
   sampev4$ProjectUnit_Name <- project
 
