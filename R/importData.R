@@ -248,13 +248,13 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   tbls <- DBI::dbListTables(con, schema = "dbo")
 
   # Setup progress bar
-  pb <- txtProgressBar(min = 0, max = length(tbls), style = 3)
+  pb <- utlis::txtProgressBar(min = 0, max = length(tbls), style = 3)
 
   # Import views using their names and show progress bar
   tbl_import <- lapply(seq_along(tbls), function(x){
 
     # progress bar
-    setTxtProgressBar(pb, x)
+    utlis::setTxtProgressBar(pb, x)
 
     # tables
     tbl <- tbls[x]
@@ -271,7 +271,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
     })
 
   # naming tables
-  tbl_import <- setNames(tbl_import, tbls)
+  tbl_import <- stats::setNames(tbl_import, tbls)
 
   tbl_import2 <- tbl_import[sort(names(tbl_import))]
 
@@ -296,9 +296,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
     invisible(lapply(seq_along(dbtbls), function(x){
       temp_tbl = get(dbtbls[x], envir = env)
-      write.csv(temp_tbl,
-                paste0(tmp, "\\", dbtbls[x], ".csv"),
-                row.names = FALSE)
+      utlis::write.csv(temp_tbl,
+                       paste0(tmp, "\\", dbtbls[x], ".csv"),
+                       row.names = FALSE)
     }))
 
     file_list <- list.files(tmp)
@@ -355,7 +355,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
       DBI::dbDisconnect(con)
 
-      tbl_import <- setNames(tbl_import, tbls)
+      tbl_import <- stats::setNames(tbl_import, tbls)
 
       #list2env(tbl_import)
 
@@ -386,9 +386,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
       invisible(lapply(seq_along(dbtbls), function(x){
         temp_tbl = get(dbtbls[x], envir = env)
-        write.csv(temp_tbl,
-                  paste0(tmp, "\\", dbtbls[x], ".csv"),
-                  row.names = FALSE)
+        utlis::write.csv(temp_tbl,
+                         paste0(tmp, "\\", dbtbls[x], ".csv"),
+                         row.names = FALSE)
       }))
 
       file_list <- list.files(tmp)
@@ -468,9 +468,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
       # view_list, but maintain order in files
 
       # Import views now that all tests passed
-      pb <- txtProgressBar(min = 0, max = length(z_list), style = 3)
+      pb <- utlis::txtProgressBar(min = 0, max = length(z_list), style = 3)
 
-      tbls1 <- unzip(import_path, junkpaths = TRUE, exdir = tempdir())
+      tbls1 <- utlis::unzip(import_path, junkpaths = TRUE, exdir = tempdir())
 
       tbls2 <- sort(tbls1[grepl(".csv", tbls1)])
 
@@ -478,14 +478,14 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
       tbl_import <-
         lapply(seq_along(tbls), function(x){
-          setTxtProgressBar(pb,x)
+          utlis::setTxtProgressBar(pb,x)
           tbl <- tbls[x]
-          tab <- read.csv(tbls[x], na.string = c("NA", "NULL"),
-                          check.names = FALSE) |>
+          tab <- utlis::read.csv(tbls[x], na.string = c("NA", "NULL"),
+                                 check.names = FALSE) |>
             dplyr::mutate(datasource = file_name)
           return(tab)})
 
-      tbl_import <- setNames(tbl_import, z_list_names)
+      tbl_import <- stats::setNames(tbl_import, z_list_names)
       tbl_import2 <- tbl_import
       list2env(tbl_import, envir = env)
 
@@ -558,14 +558,14 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
         # Since the missing test passed, clean up files so only includes names 
         # in view_list, but maintain order in files
-        tbls1 <- unzip(import_path[ip], junkpaths = TRUE, exdir = tempdir())
+        tbls1 <- utils::unzip(import_path[ip], junkpaths = TRUE, exdir = tempdir())
         tbls2 <- sort(tbls1[grepl(".csv", tbls1)])
         tbls <- sort(tbls2[grepl(paste0(csv_list, ".csv", collapse = "|"), tbls2)])
 
         tbl_import <-
           lapply(seq_along(tbls), function(x){
-          tbl_temp <- read.csv(tbls[x], na.strings = c("NA", "NULL", ""),
-                               check.names = FALSE, as.is = T) |>
+          tbl_temp <- utils::read.csv(tbls[x], na.strings = c("NA", "NULL", ""),
+                                      check.names = FALSE, as.is = T) |>
             dplyr::mutate(datasource = file_name)
 
           # When fields from one park are all NAs vs other parks have data, 
@@ -607,7 +607,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
           return(tbl_temp)
           })
 
-        tbl_import <- setNames(tbl_import, z_list_names)},
+        tbl_import <- stats::setNames(tbl_import, z_list_names)},
         .progress = TRUE) |> purrr::set_names(file_names)
 
       # flatten list to bind like tables together
@@ -631,9 +631,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
         invisible(lapply(seq_along(ziptbls), function(x){
           temp_tbl = get(ziptbls[x], envir = env)
-          write.csv(temp_tbl,
-                    paste0(tmp, "\\", ziptbls[x], ".csv"),
-                    row.names = FALSE)
+          utils::write.csv(temp_tbl,
+                           paste0(tmp, "\\", ziptbls[x], ".csv"),
+                           row.names = FALSE)
         }))
 
         file_list <- list.files(tmp)
@@ -656,9 +656,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   #---- Make Views ----
   cat(noquote("Joining tables into views."), "\n\n")
 
-  pb <- txtProgressBar(min = 0, max = 11, style = 3)
+  pb <- utlis::txtProgressBar(min = 0, max = 11, style = 3)
 
-  setTxtProgressBar(pb,1)
+  utlis::setTxtProgressBar(pb,1)
 
   #---- MacroPlot View -----
   #### Compile MacroPlot data ####
@@ -951,7 +951,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   sampev_guids <- unique(sampev_unique$SampleEvent_GUID)
 
   #---- Taxa_Table View----
-  setTxtProgressBar(pb,2)
+  utlis::setTxtProgressBar(pb,2)
   tryCatch(localspp <- get("LocalSpecies", envir = env),
            error = function(e){
              stop("LocalSpecies table not found. Please import NGPN FFI data tables.")
@@ -1096,7 +1096,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                                 keep_cols_taxa])
 
   #---- Cover_Points_Metric View ----
-  setTxtProgressBar(pb,3)
+  utlis::setTxtProgressBar(pb,3)
 
   covpts_samp1 <-   tryCatch(get("Cover_Points_metric_Sample", envir = env),
                              error = function(e){NULL})
@@ -1160,7 +1160,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                    cols_view_end)]))
   }
   #---- Cover_Species_Composition View ----
-  setTxtProgressBar(pb,4)
+  utlis::setTxtProgressBar(pb,4)
   covcomp_samp1 <-   tryCatch(get("Cover_SpeciesComposition_metric_Sample",
                                   envir = env),
                               error = function(e){NULL})
@@ -1205,7 +1205,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                     cols_view_end)]))
   }
   #---- Density_Belts_Metric View ----
-  setTxtProgressBar(pb,5)
+  utlis::setTxtProgressBar(pb,5)
   densbelt_samp1 <-   tryCatch(get("Density_Belts_metric_Sample", envir = env),
                                error = function(e){NULL})
   densbelt_attr1 <- tryCatch(get("Density_Belts_metric_Attribute", envir = env),
@@ -1249,7 +1249,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                      cols_view_end)]))
   }
   #---- Density_Quadrats_Metric View ----
-  setTxtProgressBar(pb,6)
+  utlis::setTxtProgressBar(pb,6)
 
   densquad_samp1 <- tryCatch(get("Density_Quadrats_metric_Sample", envir = env),
                              error = function(e){NULL})
@@ -1294,7 +1294,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                      cols_view_end)]))
   }
   #---- Disturbance_History View ----
-  setTxtProgressBar(pb,7)
+  utlis::setTxtProgressBar(pb,7)
   disthist_samp1 <-   tryCatch(get("DisturbanceHistory_Sample", envir = env),
                                error = function(e){NULL})
   disthist_attr1 <- tryCatch(get("DisturbanceHistory_Attribute", envir = env),
@@ -1333,7 +1333,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   ))
   }
   #---- Surface_Fuels_1000Hr View ----
-  setTxtProgressBar(pb,8)
+  utlis::setTxtProgressBar(pb,8)
   surf1000_samp1 <- tryCatch(get("SurfaceFuels_1000Hr_Sample", envir = env),
                              error = function(e){NULL})
   surf1000_attr1 <- tryCatch(get("SurfaceFuels_1000Hr_Attribute", envir = env),
@@ -1368,7 +1368,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                      cols_view_end_nospp)]))
   }
   #---- Surface_Fuels_Fine View ----
-  setTxtProgressBar(pb,9)
+  utlis::setTxtProgressBar(pb,9)
   surffine_samp1 <-   tryCatch(get("SurfaceFuels_Fine_Sample", envir = env),
                                error = function(e){NULL})
   surffine_attr1 <- tryCatch(get("SurfaceFuels_Fine_Attribute", envir = env),
@@ -1410,7 +1410,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   }
 
   #---- Surface_Fuels_Duff View ----
-  setTxtProgressBar(pb,10)
+  utlis::setTxtProgressBar(pb,10)
   surfduff_samp1 <-   tryCatch(get("SurfaceFuels_Duff_Litter_Sample", envir = env),
                                error = function(e){NULL})
   surfduff_attr1 <- tryCatch(get("SurfaceFuels_Duff_Litter_Attribute", envir = env),
@@ -1446,7 +1446,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                      cols_view_end_nospp)]))
   }
   #---- Trees_Metric ----
-  setTxtProgressBar(pb,11)
+  utlis::setTxtProgressBar(pb,11)
   tree_samp1 <- tryCatch(get("Trees_Individuals_metric_Sample", envir = env),
                          error = function(e){NULL})
   tree_attr1 <- tryCatch(get("Trees_Individuals_metric_Attribute", envir = env),
@@ -1562,9 +1562,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
     dir.create(tmp <- tempfile())
     invisible(lapply(seq_along(views_final), function(x){
       temp_tbl = get(views_final[x], envir = env_views)
-      write.csv(temp_tbl,
-                paste0(tmp, "\\", views_final[x], ".csv"),
-                row.names = FALSE)
+      utlis::write.csv(temp_tbl,
+                       paste0(tmp, "\\", views_final[x], ".csv"),
+                       row.names = FALSE)
     }))
 
     view_list <- list.files(tmp)

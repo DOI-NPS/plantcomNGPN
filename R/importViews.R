@@ -75,20 +75,20 @@ importViews <- function(import_path = NA, new_env = T){
               paste0(miss_vws, collapse = ", "))}
 
    # Import views now that all tests passed
-   pb <- txtProgressBar(min = 0, max = length(view_list), style = 3)
+   pb <- utils::txtProgressBar(min = 0, max = length(view_list), style = 3)
 
-  vws1 <- unzip(import_path, junkpaths = TRUE, exdir = tempdir())
+  vws1 <- utils::unzip(import_path, junkpaths = TRUE, exdir = tempdir())
   vws2 <- sort(vws1[grepl(".csv", vws1)])
 
   vws <- sort(vws2[grepl(paste0(view_list, collapse = "|"), vws2)])
 
   view_import <- lapply(seq_along(vws), function(x){
-    setTxtProgressBar(pb,x)
+    utlis::setTxtProgressBar(pb,x)
     vw <- vws[x]
-    view <- read.csv(vws[x], na.string = c("NA", "NULL"), check.names = FALSE)
+    view <- utils::read.csv(vws[x], na.string = c("NA", "NULL"), check.names = FALSE)
     return(view)})
 
-    view_import <- setNames(view_import, z_list_names)
+    view_import <- stats::setNames(view_import, z_list_names)
     list2env(view_import, envir = env)
 
   # Close progress bar
