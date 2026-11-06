@@ -282,7 +282,7 @@ getCoverSpeciesComp <- function(park = 'all', plot_name = "all", project = "Park
   final_names <- if(output == "short"){
     keep_cols
   } else {
-    c(keep_cols, sort(setdiff(names(covpts_samp2), keep_cols)))
+    c(keep_cols, sort(setdiff(names(covspp_samp2), keep_cols)))
     }
 
   sampcov_final <- covspp_samp2[order(covspp_samp2$MacroPlot_Name,
