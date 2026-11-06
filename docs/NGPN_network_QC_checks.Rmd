@@ -48,11 +48,11 @@ year_hist <- 2011:(year_curr - 1)
 #importViews(import_path = "./docs/data/NGPN_FFI_views_20260616.zip")
 
 try(importData(type = 'csv',
-           import_path = "../data/NGPN_FFI_table_export_20261019.zip",
+           import_path = "../data/NGPN_FFI_table_export_20261105.zip",
            keep_tables = T), silent = T)
 
 try(importData(type = 'csv',
-           import_path = "./data/NGPN_FFI_table_export_20261019.zip",
+           import_path = "./data/NGPN_FFI_table_export_20261105.zip",
            keep_tables = T), silent = T)
 ```
 

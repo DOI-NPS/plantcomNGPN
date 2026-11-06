@@ -684,7 +684,7 @@ trees2 <- trees1 |>
          Unit_Name,
          SampleEvent_Date,
          MacroPlot_Purpose,
-         MonitoringStatus_Base,
+         MonitoringStatus_Name,
          year,
          month,
          MacroPlotSize,

@@ -49,12 +49,12 @@ year_hist <- 2011:(year_curr - 1)
 
 # If SQL not set up, use import below instead, and update the import_path:
 try(importData(type = 'csv', 
-           import_path = "./data/NGPN_FFI_table_export_20261019.zip",
+           import_path = "./data/NGPN_FFI_table_export_20261105.zip",
            keep_tables = T), 
     silent = T)
 
 try(importData(type = 'csv', 
-           import_path = "../data/NGPN_FFI_table_export_20261019.zip",
+           import_path = "../data/NGPN_FFI_table_export_20261105.zip",
            keep_tables = T), 
     silent = T)
 

@@ -312,7 +312,9 @@ samp_events_plot <- samp_events |>
          MacroPlot_Name,
          MacroPlot_Purpose,
          year) |> 
-  distinct()
+  distinct() |> 
+  arrange(MacroPlot_Name,
+          year)
 
 ## Creating Park List ----
 park_list <- sort(unique(macro_plots$park))
