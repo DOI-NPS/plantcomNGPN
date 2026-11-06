@@ -250,7 +250,7 @@ getTrees <- function(park = 'all', plot_name = "all", project = "Park",
      } else if (mon_status == "NGPN_PCM"){
        trees_samp |> 
          dplyr::filter(grepl("_PlantCommunity|Dual", 
-                             MontiroingStatus_Name))
+                             MonitoringStatus_Name))
       # Fire Effects
      } else if(mon_status == "FireEffects"){
        trees |> # filtering from trees until I know what plots are needed. 
