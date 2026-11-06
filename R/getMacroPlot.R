@@ -191,7 +191,7 @@ getMacroPlot <- function(park = 'all', plot_name = "all", project = "Park",
 
   macro4 <- if(output == "short"){
     macro3[,keep_cols]
-  } else {macro5}
+  } else {macro3}
 
   if(nrow(macro4) == 0){stop(paste0("Specified function arguments returned an ",
                                     "empty data frame. Check that the ",
