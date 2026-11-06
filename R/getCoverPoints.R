@@ -246,8 +246,10 @@ getCoverPoints <- function(park = 'all', plot_name = "all", project = "Park",
   # NGPN ONLY
   
   covpts_samp1 <- if(mon_status == "NGPN_PCM"){
-    # filtering out PlantCommunity only 
-    covpts_samp[covpts_samp$MonitoringStatus_Base == "PlantCommunity",]
+    # filtering out PlantCommunity/Dual only
+    covpts_samp |> 
+      dplyr::filter(grepl("_PlantCommunity|Dual", MonitoringStatus_Name))
+    # covpts_samp[covpts_samp$MonitoringStatus_Base == "PlantCommunity",]
   } else {
     covpts_samp
   }
