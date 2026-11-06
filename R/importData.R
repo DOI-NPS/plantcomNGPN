@@ -248,13 +248,13 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   tbls <- DBI::dbListTables(con, schema = "dbo")
 
   # Setup progress bar
-  pb <- utlis::txtProgressBar(min = 0, max = length(tbls), style = 3)
+  pb <- utils::txtProgressBar(min = 0, max = length(tbls), style = 3)
 
   # Import views using their names and show progress bar
   tbl_import <- lapply(seq_along(tbls), function(x){
 
     # progress bar
-    utlis::setTxtProgressBar(pb, x)
+    utils::setTxtProgressBar(pb, x)
 
     # tables
     tbl <- tbls[x]
@@ -296,7 +296,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
     invisible(lapply(seq_along(dbtbls), function(x){
       temp_tbl = get(dbtbls[x], envir = env)
-      utlis::write.csv(temp_tbl,
+      utils::write.csv(temp_tbl,
                        paste0(tmp, "\\", dbtbls[x], ".csv"),
                        row.names = FALSE)
     }))
@@ -386,7 +386,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
       invisible(lapply(seq_along(dbtbls), function(x){
         temp_tbl = get(dbtbls[x], envir = env)
-        utlis::write.csv(temp_tbl,
+        utils::write.csv(temp_tbl,
                          paste0(tmp, "\\", dbtbls[x], ".csv"),
                          row.names = FALSE)
       }))
@@ -468,9 +468,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
       # view_list, but maintain order in files
 
       # Import views now that all tests passed
-      pb <- utlis::txtProgressBar(min = 0, max = length(z_list), style = 3)
+      pb <- utils::txtProgressBar(min = 0, max = length(z_list), style = 3)
 
-      tbls1 <- utlis::unzip(import_path, junkpaths = TRUE, exdir = tempdir())
+      tbls1 <- utils::unzip(import_path, junkpaths = TRUE, exdir = tempdir())
 
       tbls2 <- sort(tbls1[grepl(".csv", tbls1)])
 
@@ -478,9 +478,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
       tbl_import <-
         lapply(seq_along(tbls), function(x){
-          utlis::setTxtProgressBar(pb,x)
+          utils::setTxtProgressBar(pb,x)
           tbl <- tbls[x]
-          tab <- utlis::read.csv(tbls[x], na.string = c("NA", "NULL"),
+          tab <- utils::read.csv(tbls[x], na.string = c("NA", "NULL"),
                                  check.names = FALSE) |>
             dplyr::mutate(datasource = file_name)
           return(tab)})
@@ -656,9 +656,9 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   #---- Make Views ----
   cat(noquote("Joining tables into views."), "\n\n")
 
-  pb <- utlis::txtProgressBar(min = 0, max = 11, style = 3)
+  pb <- utils::txtProgressBar(min = 0, max = 11, style = 3)
 
-  utlis::setTxtProgressBar(pb,1)
+  utils::setTxtProgressBar(pb,1)
 
   #---- MacroPlot View -----
   #### Compile MacroPlot data ####
@@ -951,7 +951,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   sampev_guids <- unique(sampev_unique$SampleEvent_GUID)
 
   #---- Taxa_Table View----
-  utlis::setTxtProgressBar(pb,2)
+  utils::setTxtProgressBar(pb,2)
   tryCatch(localspp <- get("LocalSpecies", envir = env),
            error = function(e){
              stop("LocalSpecies table not found. Please import NGPN FFI data tables.")
@@ -1096,7 +1096,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                                 keep_cols_taxa])
 
   #---- Cover_Points_Metric View ----
-  utlis::setTxtProgressBar(pb,3)
+  utils::setTxtProgressBar(pb,3)
 
   covpts_samp1 <-   tryCatch(get("Cover_Points_metric_Sample", envir = env),
                              error = function(e){NULL})
@@ -1160,7 +1160,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                    cols_view_end)]))
   }
   #---- Cover_Species_Composition View ----
-  utlis::setTxtProgressBar(pb,4)
+  utils::setTxtProgressBar(pb,4)
   covcomp_samp1 <-   tryCatch(get("Cover_SpeciesComposition_metric_Sample",
                                   envir = env),
                               error = function(e){NULL})
@@ -1205,7 +1205,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                     cols_view_end)]))
   }
   #---- Density_Belts_Metric View ----
-  utlis::setTxtProgressBar(pb,5)
+  utils::setTxtProgressBar(pb,5)
   densbelt_samp1 <-   tryCatch(get("Density_Belts_metric_Sample", envir = env),
                                error = function(e){NULL})
   densbelt_attr1 <- tryCatch(get("Density_Belts_metric_Attribute", envir = env),
@@ -1249,7 +1249,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                      cols_view_end)]))
   }
   #---- Density_Quadrats_Metric View ----
-  utlis::setTxtProgressBar(pb,6)
+  utils::setTxtProgressBar(pb,6)
 
   densquad_samp1 <- tryCatch(get("Density_Quadrats_metric_Sample", envir = env),
                              error = function(e){NULL})
@@ -1294,7 +1294,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                      cols_view_end)]))
   }
   #---- Disturbance_History View ----
-  utlis::setTxtProgressBar(pb,7)
+  utils::setTxtProgressBar(pb,7)
   disthist_samp1 <-   tryCatch(get("DisturbanceHistory_Sample", envir = env),
                                error = function(e){NULL})
   disthist_attr1 <- tryCatch(get("DisturbanceHistory_Attribute", envir = env),
@@ -1333,7 +1333,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   ))
   }
   #---- Surface_Fuels_1000Hr View ----
-  utlis::setTxtProgressBar(pb,8)
+  utils::setTxtProgressBar(pb,8)
   surf1000_samp1 <- tryCatch(get("SurfaceFuels_1000Hr_Sample", envir = env),
                              error = function(e){NULL})
   surf1000_attr1 <- tryCatch(get("SurfaceFuels_1000Hr_Attribute", envir = env),
@@ -1368,7 +1368,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                      cols_view_end_nospp)]))
   }
   #---- Surface_Fuels_Fine View ----
-  utlis::setTxtProgressBar(pb,9)
+  utils::setTxtProgressBar(pb,9)
   surffine_samp1 <-   tryCatch(get("SurfaceFuels_Fine_Sample", envir = env),
                                error = function(e){NULL})
   surffine_attr1 <- tryCatch(get("SurfaceFuels_Fine_Attribute", envir = env),
@@ -1410,7 +1410,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   }
 
   #---- Surface_Fuels_Duff View ----
-  utlis::setTxtProgressBar(pb,10)
+  utils::setTxtProgressBar(pb,10)
   surfduff_samp1 <-   tryCatch(get("SurfaceFuels_Duff_Litter_Sample", envir = env),
                                error = function(e){NULL})
   surfduff_attr1 <- tryCatch(get("SurfaceFuels_Duff_Litter_Attribute", envir = env),
@@ -1446,7 +1446,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                      cols_view_end_nospp)]))
   }
   #---- Trees_Metric ----
-  utlis::setTxtProgressBar(pb,11)
+  utils::setTxtProgressBar(pb,11)
   tree_samp1 <- tryCatch(get("Trees_Individuals_metric_Sample", envir = env),
                          error = function(e){NULL})
   tree_attr1 <- tryCatch(get("Trees_Individuals_metric_Attribute", envir = env),
@@ -1562,7 +1562,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
     dir.create(tmp <- tempfile())
     invisible(lapply(seq_along(views_final), function(x){
       temp_tbl = get(views_final[x], envir = env_views)
-      utlis::write.csv(temp_tbl,
+      utils::write.csv(temp_tbl,
                        paste0(tmp, "\\", views_final[x], ".csv"),
                        row.names = FALSE)
     }))

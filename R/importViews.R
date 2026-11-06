@@ -83,7 +83,7 @@ importViews <- function(import_path = NA, new_env = T){
   vws <- sort(vws2[grepl(paste0(view_list, collapse = "|"), vws2)])
 
   view_import <- lapply(seq_along(vws), function(x){
-    utlis::setTxtProgressBar(pb,x)
+    utils::setTxtProgressBar(pb,x)
     vw <- vws[x]
     view <- utils::read.csv(vws[x], na.string = c("NA", "NULL"), check.names = FALSE)
     return(view)})
