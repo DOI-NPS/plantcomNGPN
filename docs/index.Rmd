@@ -77,30 +77,41 @@ knitr::include_graphics("./www/under-construction.png")
 ```
 ...hopefully
 
-##### R package setup
+#### 2. R package setup
 If you've never installed an R package from GitHub, you'll need to complete the following steps to install the plantcomNGPN R package. Once completed, move on to the ImportData and other function tabs for instructions on using the R package.
 
 <h5>Step 1. Install R, RStudio, and Rtools45</h5>
 Install R 4.5 or higher, RStudio, and Rtools45 (DOI-DO-RTools 4.5.6608 on Company Portal) from Company Portal. Note that R and RTools versions generally need to match. However, according to <a href = "https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html">CRAN </a> Rtools45 works for R 4.6 and the yet to be released R 4.7.   
 
-<h5><b>Step 2.</b> Install pak package in R:</h5>
+<h5><b>Step 2.</b> Install pak or remote package in R:</h5>
+Sometimes one package works better than the other. If neither are working, try connecting/disconnecting from the Global Protect VPN. If issues persist, contact Kinzie Bailey.
 ```{r, eval = F}
 install.packages('pak')
+
+# or 
+
+install.packages('remotes')
 ```
 
 Once you've successfully completed Steps 1-2, you should only have to repeat them if you have a new computer or if you move to a new version of R not compatible with Rtools45.
 
 <h5>Step 3. Install `plantcomNGPN` from GitHub</h5>
-Whenever the `plantcomNGPN` package is updated, you can rerun this code to install the latest version.
+Whenever the `plantcomNGPN` package is updated, you can rerun this code to install the latest version. Check the DOI-NPS/plantconNGPN github page for information about updates to the package. 
 ```{r, eval = F}
 library(pak)
 pkg_install("doi-nps/plantcomNGPN")
+
+# or 
+
+library(remotes)
+
+install_github("doi-nps/plantcomNGPN")
 ```
 
 <h5 style="color:#1942B5">Troubleshooting GitHub package installation</h5>
 If you’re unable to install the R package via GitHub, you may need to fix the TLS inspection (often an error about permission being denied, or cannot open URL). If this is the case, ask package developers for the TLS script that will fix this issue (can't include link here).
 
-Once the TLS script is open in R Studio, press Control + A to select all of the code. Then Control + Enter to run all of the code. Assuming you don’t return any errors, you should be able to install from GitHub. Now try to reinstall `plantcomNGPN`. If you're still running into issues, it could be that `pak` is missing some package dependencies, which the error message will often mention. Install any missing packages and then try installing plantcomNGPN again. If you're still not successful, send package developers a screenshot of the error and they'll help you troubleshoot. 
+Once the TLS script is open in R Studio, press Control + A to select all of the code. Then Control + Enter to run all of the code. Assuming you don’t return any errors, you should be able to install from GitHub. Now try to reinstall `plantcomNGPN`. If you're still running into issues, it could be that `pak` is missing some package dependencies, which the error message will often mention. Install any missing packages and then try installing plantcomNGPN again. If you cannot get pak to install `plantcomNGPN`, try using the remotes package. Additionally, connecting or disconnecting from the Global Protect VPN sometimes works. If you're still not successful, send package developers a screenshot of the error and they'll help you troubleshoot. 
 </li></ul>
 <br>
 <h5>Step 6. Load plantcomNGPN R package</h5>
@@ -109,33 +120,47 @@ library(plantcomNGPN)
 ```
 <br>
 
-#### 2. R package Intro {.tabset}
+#### 3. R package Intro {.tabset}
 ##### Overview {.tabset}
 <h5>Overview</h5>
 Once you have the R package installed, you can import and start working with the data. There are 2 import functions in the plantcomNGPN package: 
 <ul>
 <li><b>importData()</b>: imports raw FFI tables as individual data frames, either from SSMS or as a zip file of csvs. If multiple databases are specified in the import, the tables will be binded by rows across parks. This function also includes features to export data as a zip file of csvs, which can then be used in the following function.</li>
-<li><b>importViews()</b>: a streamlined function that imports a zip file of flattened views for each FFI protocol.</li>
+<li><b>importViews()</b>: a streamlined function that imports a zip file of flattened views for each FFI protocol. This is the function most users will need.</li>
 </ul>
 
 Once FFI data are imported, the package has a get function specific to each FFI protocol view that you can use to query the data by parks, years, monitoring status, or purpose. Eventually, there will be summary and plotting functions to work with each protocol.
 
 ##### Import functions {.tabset}
-<h5>importData()</h5>
-By default, the `importData()` function imports FFI tables and only returns the flattened views as data frames in an environment called <i>VIEWS_NGPN</i>. This minimizes memory usage and keeps a tidy R workspace. R package functions are then designed to work seamlessly with the views, regardless of whether they're in the VIEWS_NGPN environment or global environment. See <b>Working with the data</b> tab for how to work with data.frames housed within the VIEWS_NGPN environment.
-<ul>
-<li>
-<p class = 'fxn'>Import data for 1 database using local install in SSMS</p>
-Note that R is not able to connect to files on Sharepoint or MS Teams (Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server. The default option for importing data will add the data package views (i.e., flatfiles) to an environment called VIEWS_NGPN to your Environment work space (i.e. Environment tab in top right panel).
-
 ```{r echo = F, results = 'hide', include = F}
 library(plantcomNGPN)
-try(importData(type = 'csv', import_path = "./data/NGPN_FFI_table_export_20260616.zip"))
-try(importData(type = 'csv', import_path = "../data/NGPN_FFI_table_export_20260616.zip"))
+try(importData(type = 'csv', import_path = "./data/NGPN_FFI_table_export_20261105.zip"))
+try(importData(type = 'csv', import_path = "../data/NGPN_FFI_table_export_20261105.zip"))
 #importViews(import_path = "./data/NGPN_FFI_views_20260526.zip")
 library(tidyverse)
 ```
 
+<h5>importViews()</h5>
+<ul><li>
+<p class = 'fxn'>Import FFI views as a zip</p> 
+The `importViews()` function is the fastest and least memory hungry way to import FFI data. Someone will have to have generated the views by first importing raw FFI tables, and then exporting the views. Once that's completed, this import function is recommended. By default, `importViews()` returns the flattened views as data frames in an environment called <i>VIEWS_NGPN</i>. This minimizes memory usage and keeps a tidy R work space. The package functions are then designed to work seamlessly with the views, regardless of whether they are in the <i>VIEWS_NGPN</i> environment or global environment. Currently, this is the recommended way for users to import the data. Please ask developer or maintainer for the most up-to-date version of the views. 
+```{r eval = F}
+importViews(import_path = "./data/NGPN_FFI_views_20261105.zip")
+```
+
+<h5>importData()</h5>
+By default, the `importData()` function imports FFI tables and only returns the flattened views as data frames in an environment called <i>VIEWS_NGPN</i>. This minimizes memory usage and keeps a tidy R workspace. R package functions are then designed to work seamlessly with the views, regardless of whether they're in the VIEWS_NGPN environment or global environment. See <b>Working with the data</b> tab for how to work with data.frames housed within the VIEWS_NGPN environment.
+<ul>
+<li>
+<p class = 'fxn'>Import FFI tables as zip</p>
+The code below will import a zip file of THRO data exported by the `importData()` function (see options below). This approach does not require SSMS to be installed. Currently, this is the easiest way to import the restored back files tables. 
+```{r eval = F}
+importData(type = 'csv', import_path = "./data/FFI_RA_THRO.zip")
+```
+</li>
+</ul>
+<p class = 'fxn'>Import data for 1 database using local install in SSMS</p>
+Note: This option is currently not available with how NGPN is able to access the FFI database. Additionally, R is not able to connect to files on Sharepoint or MS Teams (Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server. The default option for importing data will add the data package views (i.e., flatfiles) to an environment called VIEWS_NGPN to your Environment work space (i.e. Environment tab in top right panel).
 ```{r eval = F}
 library(plantcomNGPN)
 importData(dbname = "FFI_RA_AGFO")
@@ -152,21 +177,6 @@ importData(type = 'local',
 ```
 </li>
 <li>
-<p class = 'fxn'>Import FFI tables as zip</p>
-The code below will import a zip file of THRO data exported by the `importData()` function (see options below). This approach does not require SSMS to be installed.
-```{r eval = F}
-importData(type = 'csv', import_path = "./data/FFI_RA_THRO.zip")
-```
-</li>
-</ul>
-
-<h5>importViews()</h5>
-<ul><li>
-<p class = 'fxn'>Import FFI views as a zip</p> 
-The `importViews()` function is the fastest and least memory hungry way to import FFI data. Someone will have to have generated the views by first importing raw FFI tables, and then exporting the views. Once that's completed, this import function is recommended. 
-```{r eval = F}
-importViews(import_path = "./data/NGPN_FFI_views_20250710.zip")
-```
 </li></ul>
 
 <h5>importData() Options</h5>
@@ -293,16 +303,13 @@ Finally, if you ever want to peak under the hood at the function, you can view i
 <li>Keep F2 key pressed and click on the function name in R. This trick works for many but not all functions in R.</li>
 <li>View code in the <a href="https://github.com/doi-nps/plantcomNGPN/tree/main">GitHub doi-nps/plantcomNGPN repo</a>. The functions are in the R folder. 
 
-#### 3. get Functions {.tabset}
+#### 4. get Functions {.tabset}
 
 ##### getMacroPlot()
-This function filters FFI macroplot data by park, plot name, project, and purpose. This function was primarily developed to pull out NGPN plant community monitoring plots. Using
-combinations of plot names, projects or purposes that are outside NGPN PCM plots hasn't been
-tested as thoroughly, and may not return intended results in every case. Note that this is more of an internal function that other data-related get functions source to efficiently
-filter on records.
+This function filters FFI macroplot data by park, plot name, and project. This function was primarily developed to pull out NGPN plant community monitoring plots. Using combinations of plot names or projects that are outside NGPN PCM plots hasn't been tested as thoroughly, and may not return intended results in every case. Note that this is more of an internal function that other data-related get functions source to efficiently filter on records.
 
 <p class='fxn'>Return all NGPN Plant Community Monitoring plots (ie vital signs plots),
-for the Park stratum and all purposes used by NGPN </p>
+for the Park stratum used by NGPN </p>
 ```{r}
 macro_vs <- getMacroPlot()
 print_head(macro_vs[,1:18]) # dropping long text columns
@@ -329,14 +336,15 @@ print_head(thro_upld[,1:18]) # dropping long text columns
 ```
 
 ##### getSampleEvent()
-This function filters FFI sample event data by park, plot name, project, purpose, and year.
-This function was primarily developed to pull out NGPN plant community monitoring plots. Using combinations of plot names, projects or purposes that are outside NGPN PCM plots hasn't been tested as thoroughly, and may not return intended results in every case. Note that this is more of an internal function that other data-related get functions source to efficiently filter on records. Note that currently, the MonitoringStatus_Comment column is not included, as it results in duplicate returns, where one row is blank and another includes a comment f or the sample sample event.
+This function filters FFI sample event data by park, plot name, project, purpose, monitoring status name, and year. This function was primarily developed to pull out NGPN plant community monitoring plots. Using combinations of plot names, projects, purposes, or monitoring status names that are outside NGPN PCM plots hasn't been tested as thoroughly, and may not return intended results in every case. Note that this is more of an internal function that other data-related get functions source to efficiently filter on records. Note that currently, the MonitoringStatus_Comment column is not included, as it results in duplicate returns, where one row is blank and another includes a comment f or the sample sample event.
 
-<p class='fxn'>Default return all samples of NGPN Plant Community Monitoring plots (ie vital signs plots), for the Park stratum and all purposes used by NGPN from 2011 and later.</p>
+<p class='fxn'>Default returns all samples of NGPN Plant Community Monitoring plots (ie vital signs plots), for the Park stratum, Panel# purposes, and YEAR_PlantCommunity monitoring status name from 2011 and later.</p>
 ```{r}
 samp_vs <- getSampleEvent()
 print_head(samp_vs[,1:18]) # dropping long text columns
 ```
+
+WORKING HERE!!!!!!!!!!!!!!!!!!
 
 <p class='fxn'>Return data for AGFO and SCBL for NGPN_PCM plots</p>
 ```{r}
