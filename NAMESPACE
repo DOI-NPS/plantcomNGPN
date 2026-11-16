@@ -16,6 +16,7 @@ export(importData)
 export(importViews)
 importFrom(dplyr,
   bind_rows,
+  coalesce,
   collect,
   distinct,
   filter,
@@ -34,6 +35,7 @@ importFrom(purrr,
   set_names
 )
 importFrom(tidyr,
+  ends_with,
   pivot_longer,
   pivot_wider
 )

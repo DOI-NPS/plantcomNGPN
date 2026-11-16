@@ -18,8 +18,8 @@
 #' view column names dropped the original table name (eg 'MacroPlot_', 'SampleEvent')
 #' where unnecessary for easier coding.
 #'
-#' @importFrom dplyr bind_rows collect distinct inner_join left_join mutate rename right_join select tbl
-#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr bind_rows collect distinct inner_join left_join mutate rename right_join select tbl coalesce
+#' @importFrom tidyr pivot_wider ends_with
 #' @importFrom purrr flatten map set_names
 #'
 #' @param type Indicate how to import the database tables
@@ -888,8 +888,7 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
                              by = c("MM_MonitoringStatus_GUID" = "MonitoringStatus_GUID"))
 
   sampev3 <- left_join(sampev2, monstat_join,
-                       by = c("SampleEvent_GUID" = "MM_SampleEvent_GUID"),
-                       relationship = 'many-to-many')
+                       by = c("SampleEvent_GUID" = "MM_SampleEvent_GUID"))
 
   sampev3$SampleEvent_Date <-
     format(as.Date(substr(sampev3$SampleEvent_Date, 1, 10), format = "%Y-%m-%d"),
@@ -975,41 +974,42 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
 
   # Drop table names from most column names for easier coding
   names(localspp)[2:19] <- gsub("^LocalSpecies_", "", names(localspp)[2:19])
-  
+
   names(mastspp)[5:18] <- gsub("^MasterSpecies_", "", names(mastspp)[5:18])
-  
+
   names(auxspp)[3:11] <- gsub("^AuxSpecies_", "", names(auxspp)[3:11])
-  
+
   # Table joins
   locspp_reg <- left_join(localspp, regunit,
-                          # by = c("LocalSpecies_RegistrationUnitGUID" = "RegistrationUnit_GUID",
                           by = c("RegistrationUnitGUID" = "RegistrationUnit_GUID",
                                  "datasource"))
 
   spp1 <- left_join(locspp_reg, auxspp,
-                    # by = c("LocalSpecies_AuxSpeciesGUID" = "AuxSpecies_GUID",
                     by = c("AuxSpeciesGUID" = "AuxSpecies_GUID",
-                           # "LocalSpecies_RegistrationUnitGUID" = "AuxSpecies_RegistrationUnitGUID",
                            "RegistrationUnitGUID" = "AuxSpecies_RegistrationUnitGUID",
-                           "datasource",
-                           "Symbol"))
+                           "Symbol",
+                           "datasource"))
 
   spp2 <- left_join(spp1, mastspp,
-                    # by = c("LocalSpecies_MasterSpeciesGUID" = "MasterSpecies_GUID",
-                    by = c("MasterSpeciesGUID" = "MasterSpecies_GUID",
-                           'datasource',
-                           "Symbol",
-                           "ScientificName",
-                           "ITIS_TSN",
-                           "Genus",
-                           "Family",
-                           "CommonName",
-                           "Nativity",
-                           "DefaultLifeFormGUID",
-                           "NotBiological"))
+                    by = c("MasterSpeciesGUID" = "MasterSpecies_GUID"),
+                    relationship = "many-to-many")
+  
+  # fixing the duplicate column issue
+  spp3 <- spp2 |> 
+    mutate(Symbol = coalesce(Symbol.x, Symbol.y),
+           CommonName = coalesce(CommonName.x, CommonName.y),
+           Nativity = coalesce(Nativity.x, Nativity.y),
+           DefaultLifeFormGUID = coalesce(DefaultLifeFormGUID.x, DefaultLifeFormGUID.y),
+           ScientificName = coalesce(ScientificName.x, ScientificName.y),
+           ITIS_TSN = coalesce(ITIS_TSN.x, ITIS_TSN.y),
+           Family = coalesce(Family.x, Family.y),
+           Genus = coalesce(Genus.x, Genus.y),
+           NotBiological = coalesce(NotBiological.x, NotBiological.y),
+           datasource = coalesce(datasource.x, datasource.y)) |> 
+    select(-ends_with(".x"),
+           -ends_with(".y"))
 
-  spp3 <- left_join(spp2, lifeform,
-                    # by = c("LocalSpecies_PreferedLifeForm_GUID" = "LU_LifeForm_GUID",
+  spp4 <- left_join(spp3, lifeform,
                     by = c("PreferedLifeForm_GUID" = "LU_LifeForm_GUID",
                            "datasource"))
 
@@ -1071,29 +1071,32 @@ importData <- function(type = "local", server = NA, dbname = "FFI_RA_AGFO",
   # names(spp4)[names(spp4) == "LocalSpecies_Description"] <- "Species_Description"
   # names(spp4)[names(spp4) == "LocalSpecies_Comment"] <- "Species_Comment"
   
-  names(spp3)[names(spp3) == "LocalSpecies_GUID"] <- "Spp_GUID"
-  names(spp3)[names(spp3) == "UV1"] <- "Species_UV1"
-  names(spp3)[names(spp3) == "Description"] <- "Species_Description"
-  names(spp3)[names(spp3) == "Comment"] <- "Species_Comment"
+  names(spp4)[names(spp4) == "LocalSpecies_GUID"] <- "Spp_GUID"
+  names(spp4)[names(spp4) == "UV1"] <- "Species_UV1"
+  names(spp4)[names(spp4) == "Description"] <- "Species_Description"
+  names(spp4)[names(spp4) == "Comment"] <- "Species_Comment"
 
   # Drop table names from column names for easier coding
-  names(spp3) <-
+  names(spp4) <-
     gsub("^MacroPlot_|^LocalSpecies_|^MasterSpecies_|^LU_|^AuxSpecies_|^Registration",
-         "", names(spp3))
+         "", names(spp4))
 
-  names(spp3)[names(spp3) == "UnitGUID"] <- "RegistrationUnitGUID"
+  names(spp4)[names(spp4) == "UnitGUID"] <- "RegistrationUnitGUID"
 
   keep_cols_taxa <- c("Symbol", "ITIS_TSN", "ScientificName", "CommonName",
                       "Family", "Genus", "Nativity", "Invasive", "Cultural",
                       "Concern", "LifeCycle", "LifeForm_Name", "NotBiological",
                       "UserAdded", "Species_UV1", "IsUnknown", "IsUnlisted",
                       "Species_Description", "Species_Comment", "Unit_Name",
-                      "SymbolKey", "Synonym_SymbolKey", "Spp_GUID",
+                      #"SymbolKey", "Synonym_SymbolKey",
+                      "Spp_GUID",
                       "RegistrationUnitGUID", "MasterSpeciesGUID",
                       "AuxSpeciesGUID", "PLANTS_GUID")
 
-  Taxa_Table <- data.frame(spp3[order(spp3$Symbol, spp3$Unit_Name),
+  Taxa_Table1 <- data.frame(spp4[order(spp4$Symbol, spp4$Unit_Name),
                                 keep_cols_taxa])
+  
+  Taxa_Table <- unique(Taxa_Table1)
 
   #---- Cover_Points_Metric View ----
   utils::setTxtProgressBar(pb,3)
