@@ -81,7 +81,8 @@ getTaxa <- function(output = "short"){
   spp1 <- left_join(locspp_reg, auxspp,
                     by = c("LocalSpecies_AuxSpeciesGUID" = "AuxSpecies_GUID",
                            "LocalSpecies_RegistrationUnitGUID" = "AuxSpecies_RegistrationUnitGUID",
-                           "datasource"))
+                           "datasource",
+                           "LocalSpecies_Symbol" = "AuxSpecies_Symbol"))
 
   spp2 <- left_join(spp1, mastspp,
                     by = c("LocalSpecies_MasterSpeciesGUID" = "MasterSpecies_GUID",
