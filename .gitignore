@@ -16,6 +16,9 @@ docs/NGPN_network_MacroPlot_QC_checks_cache/
 docs/NGPN_network_NonAnnual_QC.html
 docs/NGPN_network_MacroPlot_QC.html
 docs/NGPN_network_QC_checks.html
+docs/FireEffects/FireEffects_network_NonAnnual_QC.html
+docs/FireEffects/FireEffects_network_MacroPlot_QC.html
+docs/FireEffects/FireEffects_network_QC_checks.html
 *.zip
 *.jpg
 *.txt
@@ -26,3 +29,4 @@ data/*.zip
 *.png
 data/panel_*.csv
 testing_scripts.R
+docs/Old Reports/

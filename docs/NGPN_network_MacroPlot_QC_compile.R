@@ -1,5 +1,5 @@
 # Params for troubleshooting ----
-## These parameters come from NGPM_network_MacroPlot_Qc_Checks.Rmd
+## These parameters come from NGPN_network_MacroPlot_Qc_Checks.Rmd
 
 # library(plantcomNGPN)
 # library(tidyverse) # dplyr, purrr, tidyr
